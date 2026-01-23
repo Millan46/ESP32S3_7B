@@ -12,7 +12,7 @@
 static int s_year_start = 2024;
 static int s_year_count = 15;
 
-static bool s_format_24h = true;
+static bool s_format_24h = false;
 static bool s_is_pm = false;
 
 // Si estás editando en ScreenDate, puedes evitar que el timer pise controles
@@ -215,7 +215,7 @@ void ui_datetime_init_controls(void)
     build_years_options(2024, 15);
 
     lv_roller_set_options(ui_RollerMes, MONTHS_12, LV_ROLLER_MODE_NORMAL);
-    lv_roller_set_options(ui_RollerH, HOURS_24,   LV_ROLLER_MODE_NORMAL);
+    lv_roller_set_options(ui_RollerH, HOURS_12,   LV_ROLLER_MODE_NORMAL);
 
     build_days_options(31);
 

@@ -1,11 +1,24 @@
-#include "app_helpers.h"
+#include "ui/app_helpers.h"
 
 #include "ui/ui.h"
 #include "ui/components/ui_comp.h"
 #include "ui/components/ui_comp_topBar.h"
-
+#include "drivers/lvgl_port/lvgl_port.h"
 #include "drivers/uart/uart.h"
 #include <stdbool.h>
+
+
+#define PANEL_IMG_ON   0xFBFBFB  // blanco
+#define PANEL_IMG_OFF  0x4A4A4A  // gris oscuro (ajusta si quieres más oscuro)
+
+
+// Ajusta el timeout aquí
+static const uint32_t BL_TIMEOUT_MS = 60000;
+
+static uint32_t s_last_activity_ms = 0;
+static bool s_bl_on = true;
+
+
 static lv_obj_t* topbar_find_indicator_cabin(lv_obj_t* root)
 {
     if (!root) return nullptr;
@@ -56,5 +69,85 @@ void app_send_current_levels(void)
         uint8_t v = (uint8_t)lv_slider_get_value(ui_SliderPrivate);
         if (v > 1) v = 1;
         Uart::setPrivate(v);
+    }
+}
+
+
+static inline void bl_set(bool on)
+{
+    // 👇 AQUI es donde usas TU helper real / driver real:
+    // Si ya tienes funciones tipo app_display_bl_on/off, úsalas aquí.
+    if (on) {
+        wavesahre_rgb_lcd_bl_on();
+    } else {
+        wavesahre_rgb_lcd_bl_off(); // si no existe, dime y lo adapto a tu pin
+    }
+    s_bl_on = on;
+}
+
+void app_bl_init(void)
+{
+    s_last_activity_ms = millis();
+    s_bl_on = true;
+    bl_set(true);
+}
+
+void app_bl_tick(uint32_t now_ms)
+{
+    // ⛔ Mientras el timer esté activo, NO apagar la pantalla
+    if (app_is_timer_active()) {
+        if (!s_bl_on) {
+            bl_set(true);
+        }
+        return;
+    }
+
+    // Comportamiento normal por timeout
+    if (s_bl_on && (now_ms - s_last_activity_ms >= BL_TIMEOUT_MS)) {
+        bl_set(false);
+    }
+}
+
+
+void ui_panel_update_img_recolor(lv_obj_t* panel, int value)
+{
+    if (!panel) return;
+
+    uint32_t color = (value > 0) ? PANEL_IMG_ON : PANEL_IMG_OFF;
+
+    lv_obj_set_style_bg_img_recolor(
+        panel,
+        lv_color_hex(color),
+        LV_PART_MAIN
+    );
+
+    lv_obj_set_style_bg_img_recolor_opa(
+        panel,
+        LV_OPA_COVER,
+        LV_PART_MAIN
+    );
+
+    lv_obj_invalidate(panel);
+}
+
+extern bool app_is_timer_active(void);
+
+void app_bl_register_activity(uint32_t now_ms)
+{
+    s_last_activity_ms = now_ms;
+
+    // Si el timer está activo, fuerza pantalla encendida
+    if (app_is_timer_active()) {
+        if (!s_bl_on) {
+            s_bl_on = true;
+            bl_set(true);
+        }
+        return;
+    }
+
+    // Comportamiento normal
+    if (!s_bl_on) {
+        s_bl_on = true;
+        bl_set(true);
     }
 }

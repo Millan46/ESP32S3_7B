@@ -180,18 +180,21 @@ static void apply_mode_common(lv_obj_t *imgbtn_to_check,
     if (ui_SliderLed) {
         lv_slider_set_range(ui_SliderLed, 0, 100);
         lv_slider_set_value(ui_SliderLed, (int)led_pct, LV_ANIM_OFF);
+        ui_panel_update_img_recolor(ui_PanelLed, led_pct);
         lv_event_send(ui_SliderLed, LV_EVENT_VALUE_CHANGED, NULL);
     }
 
     if (ui_SliderFan) {
         lv_slider_set_range(ui_SliderFan, 0, 100);
         lv_slider_set_value(ui_SliderFan, (int)fan_pct, LV_ANIM_OFF);
+        ui_panel_update_img_recolor(ui_PanelFan, fan_pct);
         lv_event_send(ui_SliderFan, LV_EVENT_VALUE_CHANGED, NULL);
     }
 
     if (ui_SliderPrivate) {
         lv_slider_set_range(ui_SliderPrivate, 0, 1);
         lv_slider_set_value(ui_SliderPrivate, (int)private_on, LV_ANIM_OFF);
+        ui_panel_update_img_recolor(ui_PanelPrivate, private_on);
         lv_event_send(ui_SliderPrivate, LV_EVENT_VALUE_CHANGED, NULL);
     }
 

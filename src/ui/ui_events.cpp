@@ -334,6 +334,7 @@ void ui_event_FanSlider_ValueChanged(lv_event_t * e)
 
     uint8_t v = (uint8_t)lv_slider_get_value(ui_SliderFan);
     if (v > 100) v = 100;
+    ui_panel_update_img_recolor(ui_PanelFan, v);
     Uart::setFanLevel(v);
 }
 
@@ -346,18 +347,21 @@ void ui_event_LightSlider_ValueChanged(lv_event_t * e)
 
     uint8_t v = (uint8_t)lv_slider_get_value(ui_SliderLed);
     if (v > 100) v = 100;
+    ui_panel_update_img_recolor(ui_PanelLed, v);
     Uart::setLedLevel(v);
 }
 
 void ui_event_PrivateSlider_ValueChanged(lv_event_t * e)
 {
     if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) return;
+
     if (ui_is_syncing()) return;
 
     ui_modes_deselect_all();
 
     uint8_t v = (uint8_t)lv_slider_get_value(ui_SliderPrivate); // 0/1
     if (v > 1) v = 1;
+    ui_panel_update_img_recolor(ui_PanelPrivate, v);
     Uart::setPrivate(v);
 }
 

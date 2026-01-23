@@ -104,28 +104,42 @@ void setup()
         lvgl_port_unlock();
     }
 
-    wavesahre_rgb_lcd_bl_on();
+    app_bl_init();
+
 }
 
 // ===== Indicador por IR/CLEAN =====
 static bool s_ir_active = false;
 static uint32_t s_ir_last_ms = 0;
+static bool s_timer_active = false;  // recibido por UART
 
 // Ajusta: cuánto tiempo se queda ROJO después de un EVT_IR (si no tienes IR_OFF)
 #define IR_HOLD_MS 2000
 
 // Usa tu flag real de clean (si está en otro archivo, decláralo extern)
 extern bool s_clean_active;
-
+bool app_is_timer_active(void)
+{
+    return s_timer_active;
+}
 // Lógica única de color
 void update_cabin_indicator(void)
 {
     if (s_clean_active) {
+        // Prioridad máxima
         app_cabin_indicator_set_color(0xFFC107); // AMARILLO (CLEAN)
-    } else if (s_ir_active) {
+    }
+    else if (s_ir_active) {
+        // IR activo fuerza ROJO
         app_cabin_indicator_set_color(0xFF0000); // ROJO (IR)
-    } else {
-        app_cabin_indicator_set_color(0x00FF00); // VERDE (normal)
+    }
+    else if (s_timer_active) {
+        // Timer activo y IR desactivado → ROJO
+        app_cabin_indicator_set_color(0xFF0000); // ROJO (TIMER)
+    }
+    else {
+        // Timer OFF e IR OFF → VERDE
+        app_cabin_indicator_set_color(0x00FF00); // VERDE
     }
 }
 
@@ -156,12 +170,19 @@ void loop()
                 // opcional debug:
                 // Serial.println("✅ STM32 READY");
                 break;
+            case Uart::EVT_TIMER_ACTIVE:
+                s_timer_active = (p.value != 0);
+                app_bl_register_activity(now); // ✅
+                update_cabin_indicator();
+                break;
 
             case Uart::EVT_PIR:
                 pir_event = true;
+
                 break;
 
-            case Uart::EVT_IR:
+            
+                case Uart::EVT_IR:
                 s_ir_active = (p.value != 0);
 
                 if (lvgl_port_lock(0)) {
@@ -202,7 +223,8 @@ void loop()
             lvgl_port_unlock();
         }
     }
-
+    app_bl_tick(now);
+  
     // 5) Tick LVGL
     delay(5);
     if (lvgl_port_lock(0)) {

@@ -2,6 +2,7 @@
 
 #include "lvgl.h"
 #include "ui/ui.h"
+#include "ui/app_helpers.h"
 
 // Traemos los nombres reales de objetos de SquareLine
 #include "ui/screens/ui_ScreenControl.h"
@@ -49,6 +50,7 @@ static void ui_sync_apply_cb(void *p)
         // Asegura rango por si SquareLine quedó 0..5
         lv_slider_set_range(ui_SliderLed, 0, 100);
         lv_slider_set_value(ui_SliderLed, (int)v, LV_ANIM_OFF);
+        ui_panel_update_img_recolor(ui_PanelLed, v);
 
         // Dispara tu handler para que refresque labels sin loop (por s_sync_ui)
         lv_event_send(ui_SliderLed, LV_EVENT_VALUE_CHANGED, NULL);
@@ -63,6 +65,7 @@ static void ui_sync_apply_cb(void *p)
       if (ui_SliderFan) {
         lv_slider_set_range(ui_SliderFan, 0, 100);
         lv_slider_set_value(ui_SliderFan, (int)v, LV_ANIM_OFF);
+        ui_panel_update_img_recolor(ui_PanelFan, v);
         lv_event_send(ui_SliderFan, LV_EVENT_VALUE_CHANGED, NULL);
       }
     } break;

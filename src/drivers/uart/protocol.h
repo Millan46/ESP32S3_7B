@@ -22,7 +22,7 @@ namespace Uart {
   static constexpr uint8_t EVT_LED_TIMER_SYNC= 0xB2;
   static constexpr uint8_t EVT_FAN_TIMER_SYNC= 0xB3;
   static constexpr uint8_t EVT_READY         = 0x90;
-
+  static constexpr uint8_t EVT_TIMER_ACTIVE  = 0xD1;
   // Timer countdown
   static constexpr uint8_t EVT_LED_REMAIN    = 0xC0;
   static constexpr uint8_t EVT_FAN_REMAIN    = 0xC1;
