@@ -5,41 +5,31 @@
 
 #include "../ui.h"
 
+lv_obj_t * uic_Label1SaveTimer;
+lv_obj_t * uic_ButtonSaveTimer;
+lv_obj_t * uic_PanelSaveTimer;
 lv_obj_t * uic_ButtonBackTimer;
 lv_obj_t * uic_PanelBackTimer;
 lv_obj_t * uic_PanelTLed;
 lv_obj_t * uic_PanelTFan;
 lv_obj_t * uic_RollerLed;
 lv_obj_t * uic_RollerFan;
-lv_obj_t * uic_LabelSaveTimer;
-lv_obj_t * uic_ButtonSaveTimer;
-lv_obj_t * uic_PanelSaveTimer;
 lv_obj_t * uic_topBarTimer;
 lv_obj_t * uic_ContainerTimer;
 lv_obj_t * uic_ScreenTimer;
 lv_obj_t * ui_ScreenTimer = NULL;
 lv_obj_t * ui_ContainerTimer = NULL;
 lv_obj_t * ui_topBarTimer = NULL;
-lv_obj_t * ui_PanelSaveTimer = NULL;
-lv_obj_t * ui_ButtonSaveTimer = NULL;
-lv_obj_t * ui_LabelSaveTimer = NULL;
 lv_obj_t * ui_RollerFan = NULL;
 lv_obj_t * ui_RollerLed = NULL;
 lv_obj_t * ui_PanelTFan = NULL;
 lv_obj_t * ui_PanelTLed = NULL;
 lv_obj_t * ui_PanelBackTimer = NULL;
 lv_obj_t * ui_ButtonBackTimer = NULL;
+lv_obj_t * ui_PanelSaveTimer = NULL;
+lv_obj_t * ui_ButtonSaveTimer = NULL;
+lv_obj_t * ui_Label1SaveTimer = NULL;
 // event funtions
-void ui_event_ButtonSaveTimer(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
-        ui_event_ButtonSaveTimer_clicked(e);
-        _ui_screen_change(&ui_ScreenMain, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_ScreenMain_screen_init);
-    }
-}
-
 void ui_event_RollerFan(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -74,6 +64,16 @@ void ui_event_ButtonBackTimer(lv_event_t * e)
     }
 }
 
+void ui_event_ButtonSaveTimer(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_event_ButtonSaveTimer_clicked(e);
+        _ui_screen_change(&ui_ScreenMain, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_ScreenMain_screen_init);
+    }
+}
+
 // build funtions
 
 void ui_ScreenTimer_screen_init(void)
@@ -99,45 +99,6 @@ void ui_ScreenTimer_screen_init(void)
     lv_obj_set_y(ui_topBarTimer, 20);
 
     lv_label_set_text(ui_comp_get_child(ui_topBarTimer, UI_COMP_TOPBAR_LABELMENU), "Timer");
-
-    ui_PanelSaveTimer = lv_obj_create(ui_ContainerTimer);
-    lv_obj_set_width(ui_PanelSaveTimer, 100);
-    lv_obj_set_height(ui_PanelSaveTimer, 60);
-    lv_obj_set_x(ui_PanelSaveTimer, 400);
-    lv_obj_set_y(ui_PanelSaveTimer, 250);
-    lv_obj_set_align(ui_PanelSaveTimer, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_PanelSaveTimer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    ui_object_set_themeable_style_property(ui_PanelSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_DEFAULT);
-    ui_object_set_themeable_style_property(ui_PanelSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_DEFAULT);
-    ui_object_set_themeable_style_property(ui_PanelSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BORDER_COLOR,
-                                           _ui_theme_color_DEFAULT);
-    ui_object_set_themeable_style_property(ui_PanelSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BORDER_OPA,
-                                           _ui_theme_alpha_DEFAULT);
-
-    ui_ButtonSaveTimer = lv_btn_create(ui_PanelSaveTimer);
-    lv_obj_set_width(ui_ButtonSaveTimer, 75);
-    lv_obj_set_height(ui_ButtonSaveTimer, 47);
-    lv_obj_set_align(ui_ButtonSaveTimer, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_ButtonSaveTimer, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_ButtonSaveTimer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    ui_object_set_themeable_style_property(ui_ButtonSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_DEFAULT);
-    ui_object_set_themeable_style_property(ui_ButtonSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_DEFAULT);
-    lv_obj_set_style_bg_img_recolor(ui_ButtonSaveTimer, lv_color_hex(0xCDCDCD), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_recolor_opa(ui_ButtonSaveTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_transform_zoom(ui_ButtonSaveTimer, 200, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_LabelSaveTimer = lv_label_create(ui_ButtonSaveTimer);
-    lv_obj_set_width(ui_LabelSaveTimer, LV_SIZE_CONTENT);   /// 95
-    lv_obj_set_height(ui_LabelSaveTimer, LV_SIZE_CONTENT);    /// 45
-    lv_obj_set_align(ui_LabelSaveTimer, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelSaveTimer, "SAVE");
-    lv_obj_set_style_text_align(ui_LabelSaveTimer, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_decor(ui_LabelSaveTimer, LV_TEXT_DECOR_NONE, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_LabelSaveTimer, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RollerFan = lv_roller_create(ui_ContainerTimer);
     lv_roller_set_options(ui_RollerFan, "30 seg\n1 min\n3 min\n5 min\n10 min", LV_ROLLER_MODE_NORMAL);
@@ -228,22 +189,57 @@ void ui_ScreenTimer_screen_init(void)
     lv_obj_set_style_border_color(ui_ButtonBackTimer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_ButtonBackTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_ButtonSaveTimer, ui_event_ButtonSaveTimer, LV_EVENT_ALL, NULL);
+    ui_PanelSaveTimer = lv_obj_create(ui_ContainerTimer);
+    lv_obj_set_width(ui_PanelSaveTimer, 100);
+    lv_obj_set_height(ui_PanelSaveTimer, 60);
+    lv_obj_set_x(ui_PanelSaveTimer, -100);
+    lv_obj_set_y(ui_PanelSaveTimer, -50);
+    lv_obj_set_align(ui_PanelSaveTimer, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_clear_flag(ui_PanelSaveTimer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_PanelSaveTimer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelSaveTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_object_set_themeable_style_property(ui_PanelSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BORDER_COLOR,
+                                           _ui_theme_color_Dark);
+    ui_object_set_themeable_style_property(ui_PanelSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BORDER_OPA,
+                                           _ui_theme_alpha_Dark);
+
+    ui_ButtonSaveTimer = lv_btn_create(ui_PanelSaveTimer);
+    lv_obj_set_width(ui_ButtonSaveTimer, 100);
+    lv_obj_set_height(ui_ButtonSaveTimer, 50);
+    lv_obj_set_align(ui_ButtonSaveTimer, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_ButtonSaveTimer, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_ButtonSaveTimer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_object_set_themeable_style_property(ui_ButtonSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
+                                           _ui_theme_color_DEFAULT);
+    ui_object_set_themeable_style_property(ui_ButtonSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
+                                           _ui_theme_alpha_DEFAULT);
+    lv_obj_set_style_text_font(ui_ButtonSaveTimer, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label1SaveTimer = lv_label_create(ui_ButtonSaveTimer);
+    lv_obj_set_width(ui_Label1SaveTimer, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label1SaveTimer, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_Label1SaveTimer, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label1SaveTimer, "Save");
+    lv_obj_set_style_text_color(ui_Label1SaveTimer, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label1SaveTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label1SaveTimer, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     lv_obj_add_event_cb(ui_RollerFan, ui_event_RollerFan, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_RollerLed, ui_event_RollerLed, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonBackTimer, ui_event_ButtonBackTimer, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_ButtonSaveTimer, ui_event_ButtonSaveTimer, LV_EVENT_ALL, NULL);
     uic_ScreenTimer = ui_ScreenTimer;
     uic_ContainerTimer = ui_ContainerTimer;
     uic_topBarTimer = ui_topBarTimer;
-    uic_PanelSaveTimer = ui_PanelSaveTimer;
-    uic_ButtonSaveTimer = ui_ButtonSaveTimer;
-    uic_LabelSaveTimer = ui_LabelSaveTimer;
     uic_RollerFan = ui_RollerFan;
     uic_RollerLed = ui_RollerLed;
     uic_PanelTFan = ui_PanelTFan;
     uic_PanelTLed = ui_PanelTLed;
     uic_PanelBackTimer = ui_PanelBackTimer;
     uic_ButtonBackTimer = ui_ButtonBackTimer;
+    uic_PanelSaveTimer = ui_PanelSaveTimer;
+    uic_ButtonSaveTimer = ui_ButtonSaveTimer;
+    uic_Label1SaveTimer = ui_Label1SaveTimer;
 
 }
 
@@ -258,12 +254,6 @@ void ui_ScreenTimer_screen_destroy(void)
     ui_ContainerTimer = NULL;
     uic_topBarTimer = NULL;
     ui_topBarTimer = NULL;
-    uic_PanelSaveTimer = NULL;
-    ui_PanelSaveTimer = NULL;
-    uic_ButtonSaveTimer = NULL;
-    ui_ButtonSaveTimer = NULL;
-    uic_LabelSaveTimer = NULL;
-    ui_LabelSaveTimer = NULL;
     uic_RollerFan = NULL;
     ui_RollerFan = NULL;
     uic_RollerLed = NULL;
@@ -276,5 +266,11 @@ void ui_ScreenTimer_screen_destroy(void)
     ui_PanelBackTimer = NULL;
     uic_ButtonBackTimer = NULL;
     ui_ButtonBackTimer = NULL;
+    uic_PanelSaveTimer = NULL;
+    ui_PanelSaveTimer = NULL;
+    uic_ButtonSaveTimer = NULL;
+    ui_ButtonSaveTimer = NULL;
+    uic_Label1SaveTimer = NULL;
+    ui_Label1SaveTimer = NULL;
 
 }

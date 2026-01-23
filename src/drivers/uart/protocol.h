@@ -12,6 +12,7 @@ namespace Uart {
   // --- Extra CMD ---
   static constexpr uint8_t CMD_CLEAN      = 0x40;  // value: segundos (0=default)
   static constexpr uint8_t CMD_PRIVATE    = 0x42;  // value: 0=OFF, 1=ON (GPIO privacy)
+  static constexpr uint8_t CMD_IR_ENABLE  = 0xD0;
 
   // --- STM32 -> ESP32 (EVT) ---
   static constexpr uint8_t EVT_PIR           = 0xA0;

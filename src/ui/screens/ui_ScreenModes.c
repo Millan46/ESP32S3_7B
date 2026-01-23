@@ -88,7 +88,6 @@ void ui_event_ButtonSaveModes(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         ui_event_ButtonSaveModes_Clicked(e);
-        _ui_screen_change(&ui_ScreenMain, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_ScreenMain_screen_init);
     }
 }
 

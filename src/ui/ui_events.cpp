@@ -735,5 +735,11 @@ void ui_event_DropdownAmPm_ValueChanged(lv_event_t *e)
 
 void ui_event_IR_Enable(lv_event_t * e)
 {
-	// Your code here
+    if(lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) return;
+
+    lv_obj_t * sw = lv_event_get_target(e);
+    bool ir_on = lv_obj_has_state(sw, LV_STATE_CHECKED);
+
+    // UART IR ON / OFF
+    Uart::send(Uart::CMD_IR_ENABLE, ir_on ? 1 : 0);
 }

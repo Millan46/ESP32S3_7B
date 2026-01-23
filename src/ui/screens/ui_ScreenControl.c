@@ -34,7 +34,7 @@ void ui_event_SwitchIR(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_CLICKED) {
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_event_IR_Enable(e);
     }
 }

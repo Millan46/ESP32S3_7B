@@ -16,10 +16,6 @@ extern void ui_ScreenTimer_screen_destroy(void);
 extern lv_obj_t * ui_ScreenTimer;
 extern lv_obj_t * ui_ContainerTimer;
 extern lv_obj_t * ui_topBarTimer;
-extern lv_obj_t * ui_PanelSaveTimer;
-extern void ui_event_ButtonSaveTimer(lv_event_t * e);
-extern lv_obj_t * ui_ButtonSaveTimer;
-extern lv_obj_t * ui_LabelSaveTimer;
 extern void ui_event_RollerFan(lv_event_t * e);
 extern lv_obj_t * ui_RollerFan;
 extern void ui_event_RollerLed(lv_event_t * e);
@@ -29,19 +25,23 @@ extern lv_obj_t * ui_PanelTLed;
 extern lv_obj_t * ui_PanelBackTimer;
 extern void ui_event_ButtonBackTimer(lv_event_t * e);
 extern lv_obj_t * ui_ButtonBackTimer;
+extern lv_obj_t * ui_PanelSaveTimer;
+extern void ui_event_ButtonSaveTimer(lv_event_t * e);
+extern lv_obj_t * ui_ButtonSaveTimer;
+extern lv_obj_t * ui_Label1SaveTimer;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenTimer;
 extern lv_obj_t * uic_ContainerTimer;
 extern lv_obj_t * uic_topBarTimer;
-extern lv_obj_t * uic_PanelSaveTimer;
-extern lv_obj_t * uic_ButtonSaveTimer;
-extern lv_obj_t * uic_LabelSaveTimer;
 extern lv_obj_t * uic_RollerFan;
 extern lv_obj_t * uic_RollerLed;
 extern lv_obj_t * uic_PanelTFan;
 extern lv_obj_t * uic_PanelTLed;
 extern lv_obj_t * uic_PanelBackTimer;
 extern lv_obj_t * uic_ButtonBackTimer;
+extern lv_obj_t * uic_PanelSaveTimer;
+extern lv_obj_t * uic_ButtonSaveTimer;
+extern lv_obj_t * uic_Label1SaveTimer;
 
 #ifdef __cplusplus
 } /*extern "C"*/
