@@ -196,18 +196,43 @@ static void datetime_timer_cb(lv_timer_t *t)
 // ====== Public API ======
 void ui_datetime_init_controls(void)
 {
+    s_loading_controls = true;
+
     build_years_options(2024, 15);
-
-    lv_roller_set_options(ui_RollerMes, MONTHS_12, LV_ROLLER_MODE_NORMAL);
-    lv_roller_set_options(ui_RollerH, HOURS_12,   LV_ROLLER_MODE_NORMAL);
-
     build_days_options(31);
 
-    lv_roller_set_selected(ui_RollerAno, 0, LV_ANIM_OFF);
-    lv_roller_set_selected(ui_RollerMes, 0, LV_ANIM_OFF);
-    lv_roller_set_selected(ui_RollerDia, 0, LV_ANIM_OFF);
-    lv_roller_set_selected(ui_RollerH,   0, LV_ANIM_OFF);
-    lv_roller_set_selected(ui_RollerM,   0, LV_ANIM_OFF);
+    lv_roller_set_options(ui_RollerMes, MONTHS_12, LV_ROLLER_MODE_NORMAL);
+    lv_roller_set_options(ui_RollerH,   HOURS_12,  LV_ROLLER_MODE_NORMAL);
+
+    int Y, Mo, D, h24, mi;
+    if (!clock_manager_get_now_ymdhm(&Y, &Mo, &D, &h24, &mi)) {
+        s_loading_controls = false;
+        return;
+    }
+
+    int year_index = Y - 2024;
+    if (year_index < 0) year_index = 0;
+    if (year_index > 14) year_index = 14;
+
+    lv_roller_set_selected(ui_RollerAno, year_index, LV_ANIM_OFF);
+    lv_roller_set_selected(ui_RollerMes, Mo - 1,     LV_ANIM_OFF);
+    lv_roller_set_selected(ui_RollerDia, D  - 1,     LV_ANIM_OFF);
+
+    // 12h
+    s_format_24h = false;
+    s_is_pm = (h24 >= 12);
+
+    int h12 = h24 % 12;
+    if (h12 == 0) h12 = 12;
+
+    lv_roller_set_selected(ui_RollerH, h12 - 1, LV_ANIM_OFF);
+    lv_roller_set_selected(ui_RollerM, mi,      LV_ANIM_OFF);
+
+    // si tienes dropdown AM/PM, aquí debes setearlo acorde a s_is_pm
+    // ui_set_drop_pm(s_is_pm);  <-- dime cómo se llama tu dropdown y te lo pongo exacto
+
+    s_loading_controls = false;
+    ui_datetime_refresh_preview_label();
 }
 
 void ui_datetime_refresh_days_keep_selection(void)
@@ -248,6 +273,16 @@ void ui_datetime_set_editing(bool editing)
 void ui_datetime_load_from_current_to_controls(void)
 {
     s_loading_controls = true;
+    
+    int Y, Mo, D, h24, mi;
+    if (clock_manager_get_now_ymdhm(&Y, &Mo, &D, &h24, &mi)) {
+        sY  = Y;
+        sMo = Mo;
+        sD  = D;
+        sH  = h24;
+        sMi = mi;
+    }
+
 
     // Año
     int y_idx = sY - s_year_start;
@@ -309,6 +344,7 @@ void ui_datetime_refresh_preview_label(void)
     if (!s_format_24h) {
         int h12 = (int)lv_roller_get_selected(ui_RollerH) + 1;
         bool pm = ui_get_is_pm_from_drop();  
+        s_is_pm = pm; // <-- clave para mantener todo coherente
         std::snprintf(buf, sizeof(buf),
                       "%02d/%02d/%04d  %02d:%02d %s",
                       D, Mo, Y, h12, mi, s_is_pm ? "PM" : "AM");

@@ -583,6 +583,7 @@ void ui_event_ButtonDate_Clicked(lv_event_t * e)
     if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
 
     go_screen(ui_ScreenDate);
+ 
 
     // Lee dropdown 12/24 y aplica al RollerH
     uint16_t sel = lv_dropdown_get_selected(ui_DropdownFormat);
@@ -593,7 +594,8 @@ void ui_event_ButtonDate_Clicked(lv_event_t * e)
         if (sel == 1) lv_obj_add_flag(ui_DropdownAmPm, LV_OBJ_FLAG_HIDDEN);
         else          lv_obj_clear_flag(ui_DropdownAmPm, LV_OBJ_FLAG_HIDDEN);
     }
-
+       // 🔴 1) Cargar fecha/hora REAL al entrar
+    ui_datetime_load_from_current_to_controls();
     ui_datetime_refresh_days_keep_selection();
     ui_datetime_refresh_preview_label();
 }

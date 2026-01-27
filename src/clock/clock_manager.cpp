@@ -16,6 +16,20 @@ static bool dt_valid(const ClockDateTime& t)
     return true;
 }
 
+bool clock_manager_get_now_ymdhm(int *Y, int *Mo, int *D, int *h24, int *mi)
+{
+    ClockDateTime dt;
+    if (clock_manager_get_now(dt)) {
+        if (Y) *Y = dt.y;
+        if (Mo) *Mo = dt.mo;
+        if (D) *D = dt.d;
+        if (h24) *h24 = dt.h;
+        if (mi) *mi = dt.mi;
+        return true;
+    }
+    return false;
+}
+
 void clock_manager_init()
 {
     clock_nvs_init();

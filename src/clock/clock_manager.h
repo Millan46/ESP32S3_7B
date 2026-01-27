@@ -14,6 +14,7 @@ typedef struct ClockDateTime {
     int s;
 } ClockDateTime;
 
+bool clock_manager_get_now_ymdhm(int *Y, int *Mo, int *D, int *h24, int *mi);
 void clock_manager_init(void);
 
 bool clock_manager_get_now(ClockDateTime& out);
