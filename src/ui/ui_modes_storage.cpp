@@ -1,9 +1,8 @@
 #include "ui_modes_storage.h"
-
 #include <Preferences.h>
 #include <string.h>
 #include <stdint.h>
-
+#include <stdlib.h>
 #include "ui_modes.h"
 
 // Usamos Preferences (NVS en ESP32)
@@ -39,11 +38,12 @@ bool modes_storage_save(void)
 
     const size_t blob_len = (size_t)count * sizeof(mode_cfg_t);
 
-    // Copiamos a buffer para calcular CRC
-    mode_cfg_t tmp[8]; // ajusta si tienes más de 8
-    if ((size_t)count > (sizeof(tmp)/sizeof(tmp[0]))) return false;
-
     const mode_cfg_t* src = ui_modes_presets();
+
+    // Reserva buffer temporal
+    mode_cfg_t* tmp = (mode_cfg_t*)malloc(blob_len);
+    if (!tmp) return false;
+
     memcpy(tmp, src, blob_len);
 
     modes_hdr_t hdr{};
@@ -54,11 +54,17 @@ bool modes_storage_save(void)
 
     bool ok1 = (s_prefs.putBytes("cfg", tmp, blob_len) == blob_len);
     bool ok2 = (s_prefs.putBytes("hdr", &hdr, sizeof(hdr)) == sizeof(hdr));
+
+    free(tmp);
     return ok1 && ok2;
 }
 
+
 bool modes_storage_load(void)
 {
+    // ✅ Primera vez: no existe nada guardado todavía
+    if (!s_prefs.isKey("hdr") || !s_prefs.isKey("cfg")) return false;
+
     modes_hdr_t hdr{};
     if (s_prefs.getBytesLength("hdr") != sizeof(hdr)) return false;
 
@@ -71,19 +77,24 @@ bool modes_storage_load(void)
     const size_t blob_len = (size_t)count * sizeof(mode_cfg_t);
     if (s_prefs.getBytesLength("cfg") != blob_len) return false;
 
-    mode_cfg_t tmp[8]; // ajusta si tienes más de 8
-    if ((size_t)count > (sizeof(tmp)/sizeof(tmp[0]))) return false;
+    mode_cfg_t* tmp = (mode_cfg_t*)malloc(blob_len);
+    if (!tmp) return false;
 
     s_prefs.getBytes("cfg", tmp, blob_len);
 
     uint32_t crc = crc32_simple((const uint8_t*)tmp, blob_len);
-    if (crc != hdr.crc) return false;
+    if (crc != hdr.crc) {
+        free(tmp);
+        return false;
+    }
 
-    // Importar a RAM
     mode_cfg_t* dst = ui_modes_presets_mut();
     memcpy(dst, tmp, blob_len);
+
+    free(tmp);
     return true;
 }
+
 
 bool modes_storage_clear(void)
 {

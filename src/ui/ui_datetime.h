@@ -15,7 +15,6 @@ void ui_datetime_get_current(int *Y,int *Mo,int *D,int *h24,int *mi,int *sec);
 void ui_datetime_start_timer(void);
 void ui_datetime_stop_timer(void);
 void ui_datetime_set_editing(bool editing);
-void ui_datetime_load_from_system_to_controls(void);
 void ui_datetime_load_from_current_to_controls(void);
 
 void ui_datetime_render_now(void);

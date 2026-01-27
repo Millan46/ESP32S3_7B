@@ -6,6 +6,8 @@
 #include "lvgl.h"
 #include "drivers/lvgl_port/lvgl_port.h"
 
+// ---------- flag ----------
+static volatile bool s_logo_done = false;
 
 // ---------- helpers ----------
 static void set_opa_cb(void * obj, int32_t v)
@@ -15,10 +17,10 @@ static void set_opa_cb(void * obj, int32_t v)
 
 static void fade_ready_cb(lv_anim_t * a)
 {
-    if (lvgl_port_lock(-1)) {
-        lv_scr_load(ui_ScreenMain);
-        lvgl_port_unlock();
-    }
+    (void)a;
+    // 🚫 NO lvgl_port_lock aquí
+    // ✅ Solo marca que terminó
+    s_logo_done = true;
 }
 
 // ---------- animación logo ----------
@@ -51,17 +53,19 @@ static void backlight_timer_cb(lv_timer_t * t)
 void ui_logo_start_sequence(uint32_t backlight_delay_ms,
                             uint32_t fade_time_ms)
 {
-    // Garantiza estado inicial
+    s_logo_done = false;
+
     wavesahre_rgb_lcd_bl_off();
 
-    // Logo invisible
     if(ui_ImageLogo) {
         lv_obj_set_style_opa(ui_ImageLogo, LV_OPA_0, LV_PART_MAIN);
     }
 
-    // Timer: BL ON -> fade
     lv_timer_t * t = lv_timer_create(backlight_timer_cb,
                                      backlight_delay_ms,
                                      (void*)fade_time_ms);
     lv_timer_set_repeat_count(t, 1);
 }
+
+// opcional: getter
+bool ui_logo_is_done(void) { return s_logo_done; }

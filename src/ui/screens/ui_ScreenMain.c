@@ -45,8 +45,6 @@ lv_obj_t * ui_PanelSet = NULL;
 lv_obj_t * ui_ButtonSettings = NULL;
 lv_obj_t * ui_PanelClean = NULL;
 lv_obj_t * ui_ButtonClean = NULL;
-lv_obj_t * ui_Container2 = NULL;
-lv_obj_t * ui_Image3 = NULL;
 // event funtions
 void ui_event_ButtonPhone(lv_event_t * e)
 {
@@ -227,6 +225,12 @@ void ui_ScreenMain_screen_init(void)
     lv_obj_set_x(ui_SliderFan, -220);
     lv_obj_set_y(ui_SliderFan, 5);
 
+    lv_obj_set_style_bg_color(ui_SliderFan, lv_color_hex(0xDB9A18), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SliderFan, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui_SliderFan, LV_GRAD_DIR_HOR, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_blend_mode(ui_SliderFan, LV_BLEND_MODE_NORMAL, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_opa(ui_SliderFan, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
     ui_PanelFan = lv_obj_create(ui_ContainerMain);
     lv_obj_set_width(ui_PanelFan, 100);
     lv_obj_set_height(ui_PanelFan, 70);
@@ -399,23 +403,6 @@ void ui_ScreenMain_screen_init(void)
     ui_object_set_themeable_style_property(ui_ButtonClean, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR_OPA,
                                            _ui_theme_alpha_IndicatorOn);
 
-    ui_Container2 = lv_obj_create(ui_ContainerMain);
-    lv_obj_remove_style_all(ui_Container2);
-    lv_obj_set_width(ui_Container2, 235);
-    lv_obj_set_height(ui_Container2, 75);
-    lv_obj_clear_flag(ui_Container2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Image3 = lv_img_create(ui_Container2);
-    lv_img_set_src(ui_Image3, &ui_img_1615156922);
-    lv_obj_set_width(ui_Image3, LV_SIZE_CONTENT);   /// 501
-    lv_obj_set_height(ui_Image3, LV_SIZE_CONTENT);    /// 175
-    lv_obj_set_x(ui_Image3, 7);
-    lv_obj_set_y(ui_Image3, 9);
-    lv_obj_set_align(ui_Image3, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image3, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_img_set_zoom(ui_Image3, 100);
-
     lv_obj_add_event_cb(ui_ButtonPhone, ui_event_ButtonPhone, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonWork, ui_event_ButtonWork, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonRelax, ui_event_ButtonRelax, LV_EVENT_ALL, NULL);
@@ -491,7 +478,5 @@ void ui_ScreenMain_screen_destroy(void)
     ui_PanelClean = NULL;
     uic_ButtonClean = NULL;
     ui_ButtonClean = NULL;
-    ui_Container2 = NULL;
-    ui_Image3 = NULL;
 
 }

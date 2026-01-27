@@ -28,7 +28,6 @@
 // Your custom helpers (C++ .cpp)
 #include "app_helpers.h"
 #include "ui_datetime.h"
-#include "clock/clock_core.h"
 #include "time_job.h"
 
 extern bool s_clean_active;
@@ -60,23 +59,32 @@ static void set_system_time(int Y,int Mo,int D,int H,int Mi,int S)
     settimeofday(&tv, nullptr);
 }
 
-
 static inline void go_screen(lv_obj_t * scr)
 {
     if (scr) lv_scr_load(scr);
 }
 
-static inline void pin_set_active(lv_obj_t * ta)
+static void pin_set_active(lv_obj_t * ta)
 {
+    if (s_pin_active == ta) return;
+
+    // ✅ quita focus del anterior
+    if (s_pin_active) {
+        lv_obj_clear_state(s_pin_active, LV_STATE_FOCUSED);
+    }
+
     s_pin_active = ta;
+
+    if (s_pin_active) {
+        lv_obj_add_state(s_pin_active, LV_STATE_FOCUSED);
+        lv_textarea_set_cursor_click_pos(s_pin_active, true);
+    }
 }
 
 static inline bool is_textarea(lv_obj_t * obj)
 {
     return obj && lv_obj_check_type(obj, &lv_textarea_class);
 }
-
-
 
 // ---- Settings: force placeholder "Pin" and masked input
 static void settings_prepare_cb(void * /*arg*/)
@@ -91,7 +99,6 @@ static void settings_prepare_cb(void * /*arg*/)
 
     lv_obj_invalidate(ui_TextAreaPinSettings);
 }
-
 
 // =============================
 // UI feedback helpers (border flash)
@@ -178,7 +185,7 @@ static void screenpin_prepare(void)
     }
 
     pin_set_active(ui_TextAreaPinUser);
-    if (ui_TextAreaPinUser) lv_obj_add_state(ui_TextAreaPinUser, LV_STATE_FOCUSED);
+
 }
 
 // ---- PIN keypad operations
@@ -301,7 +308,6 @@ static inline void pin_ok(void)
     pin_clear_active();
 }
 
-
 // =======================================================
 // ============== Handlers from ui_events.h ==============
 // =======================================================
@@ -409,6 +415,7 @@ void ui_event_ButtonSaveDate_Clicked(lv_event_t * e)
     g_pending_time.fmt = fmt;
 
     g_time_save_pending = true;
+
 
     // preview inmediato
     ui_datetime_refresh_preview_label();
@@ -558,30 +565,6 @@ void ui_event_ButtonBackOption_Clicked(lv_event_t * e)
     go_screen(ui_ScreenMain);
 }
 
-// ---------- PIN screen focus/defocus ----------
-void ui_event_PinUser_Focused(lv_event_t * e)
-{
-    if (lv_event_get_code(e) != LV_EVENT_FOCUSED) return;
-    pin_set_active(ui_TextAreaPinUser);
-}
-
-void ui_event_PinUser_Defocused(lv_event_t * e)
-{
-    if (lv_event_get_code(e) != LV_EVENT_DEFOCUSED) return;
-    if (s_pin_active == ui_TextAreaPinUser) pin_set_active(nullptr);
-}
-
-void ui_event_PinAdvanced_Focused(lv_event_t * e)
-{
-    if (lv_event_get_code(e) != LV_EVENT_FOCUSED) return;
-    pin_set_active(ui_TextAreaPinAdvanced);
-}
-
-void ui_event_PinAdvanced_Defocused(lv_event_t * e)
-{
-    if (lv_event_get_code(e) != LV_EVENT_DEFOCUSED) return;
-    if (s_pin_active == ui_TextAreaPinAdvanced) pin_set_active(nullptr);
-}
 
 void ui_event_ButtonBackPin_Clicked(lv_event_t * e)
 {
@@ -702,8 +685,6 @@ void ui_event_TextAreaPinSettings_Defocused(lv_event_t * e)
     }
 }
 
-
-
 void ui_event_RollerAno_ValueChanged(lv_event_t * e)
 {
     (void)e;
@@ -746,4 +727,15 @@ void ui_event_IR_Enable(lv_event_t * e)
 
     // UART IR ON / OFF
     Uart::send(Uart::CMD_IR_ENABLE, ir_on ? 1 : 0);
+}
+void ui_event_PinUser_Clicked(lv_event_t * e)
+{
+    if (lv_event_get_code(e) == LV_EVENT_CLICKED)
+        pin_set_active(ui_TextAreaPinUser);
+}
+
+void ui_event_PinAdvanced_Clicked(lv_event_t * e)
+{
+    if (lv_event_get_code(e) == LV_EVENT_CLICKED)
+        pin_set_active(ui_TextAreaPinAdvanced);
 }

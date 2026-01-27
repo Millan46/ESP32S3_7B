@@ -14,6 +14,7 @@
 #include "ui/ui_modes_storage.h"
 #include "time_job.h"
 #include "clock/clock_manager.h"
+#include "clock/clock_rtc.h"
 volatile bool pir_event = false;
 volatile bool ir_event  = false;
 
@@ -23,40 +24,27 @@ static uint32_t last_sync_ms = 0;
 static uint32_t last_rx_ms = 0;
 static const uint32_t SYNC_PERIOD_MS = 500;
 static const uint32_t LINK_TIMEOUT_MS  = 1500;  // si 1.5s sin RX, considero caído
-static inline void uart_handshake_tick()
-{
-    if (stm_ready) return;
 
-    uint32_t now = millis();
-    if (now - last_sync_ms >= SYNC_PERIOD_MS) {
-        last_sync_ms = now;
-        Uart::send(Uart::CMD_SYNC, 0);
-    }
+
+void print_time(const char* tag, const ClockDateTime& t) {
+  Serial.printf("%s %04d-%02d-%02d %02d:%02d:%02d\n",
+                tag, t.y,t.mo,t.d,t.h,t.mi,t.s);
 }
-static void process_time_save_job()
-{
-  if (!g_time_save_pending) return;
 
-  PendingTime t = g_pending_time;
-  g_time_save_pending = false;
-
-  clock_manager_apply_manual_time(t.Y, t.Mo, t.D, t.h24, t.mi, t.sec);
-
-  if (lvgl_port_lock(0)) {
-    ui_datetime_set_format_24h(t.fmt == 24);   // ✅ APLICA fmt
-    ui_datetime_set_editing(false);
-    ui_datetime_load_from_system_to_controls();
-    lvgl_port_unlock();
-  }
-}
+// -------- Setup / Loop --------
 
 void setup()
 {
     Serial.begin(115200);
+    delay(1500);
+    Serial.println("\nBOOT: start");
+    Serial.flush();
 
     // UART hacia STM32
     Uart::begin(115200);
     delay(50);
+
+
 
     // Handshake STM32
     last_sync_ms = millis();
@@ -66,37 +54,88 @@ void setup()
     static esp_lcd_touch_handle_t tp_handle    = NULL;
 
     tp_handle    = touch_gt911_init();
+
+
     panel_handle = waveshare_esp32_s3_rgb_lcd_init();
+    wavesahre_rgb_lcd_bl_off();   // lo más pronto posible
 
     ESP_ERROR_CHECK(lvgl_port_init(panel_handle, tp_handle));
+     // ✅ Init clock (RTC + NVS)
+    Serial.println("BOOT: before clock_manager_init");
+    Serial.flush();
+    clock_manager_init();
+    Serial.println("BOOT: after clock_manager_init");
+    Serial.flush();
 
+    ClockDateTime m{};
+    if (clock_manager_get_now(m)) print_time("MANAGER:", m);
+    else Serial.println("MANAGER: invalid");
+
+    ClockDateTime r{};
+    if (clock_rtc_read(r)) print_time("RTC:", r);
+    else Serial.println("RTC: read failed");
+    
+
+    ClockDateTime t;
+    if (clock_manager_get_now(t)) {
+        Serial.printf("NOW: %04d-%02d-%02d %02d:%02d:%02d\n", t.y,t.mo,t.d,t.h,t.mi,t.s);
+    } else {
+        Serial.println("Clock invalid (RTC lost power and no NVS)");
+    }
+      Serial.flush();
+    
     if (lvgl_port_lock(-1)) {
+
+        // fuerza fondo negro inmediato
+        lv_obj_t * scr = lv_scr_act();
+        lv_obj_set_style_bg_color(scr, lv_color_black(), 0);
+        lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
+        lv_refr_now(lv_disp_get_default());
 
         ui_init();
 
+        // ====== LOGO ======
+        lv_scr_load(ui_ScreenLogo);
+        lv_obj_invalidate(lv_scr_act());
+        lv_refr_now(lv_disp_get_default());
+
+        ui_logo_start_sequence(500, 3000);
+
+        while (!ui_logo_is_done()) {
+            lv_timer_handler();
+            delay(5);
+        }
+
+        // ====== TU FLUJO NORMAL ======
         modes_storage_init();
         modes_storage_load();
         apply_mode_safe(UI_MODE_DEFAULT);
 
         ui_menu_bind();
 
-        clock_manager_init();
-
-        // ✅ Timer del UI (TopBar/Preview)
+        // Timer del UI (TopBar/Preview)
         ui_datetime_start_timer();
 
-        // ✅ SIEMPRE ir a ScreenDate al encender
+        // SIEMPRE ir a ScreenDate al encender
         lv_scr_load(ui_ScreenDate);
 
         ui_datetime_init_controls();
         ui_datetime_set_editing(true);
 
-         // tu reloj interno default (o el que tengas guardado)
-        ui_datetime_set_current(2026, 1, 1, 0, 0, 0);
+        // ✅ Re-sync desde RTC al entrar a ScreenDate (opcional, recomendado)
+        clock_manager_sync_from_rtc();
+
+        // ✅ Cargar hora real (RTC o NVS) al "current" del UI
+        ClockDateTime dt;
+        if (clock_manager_get_now(dt)) {
+            ui_datetime_set_current(dt.y, dt.mo, dt.d, dt.h, dt.mi, dt.s);
+        } else {
+            // fallback si todavía no hay hora válida
+            ui_datetime_set_current(2026, 1, 1, 0, 0, 0);
+        }
 
         // ✅ NO usa time()
         ui_datetime_load_from_current_to_controls();
-
 
         lv_obj_invalidate(lv_scr_act());
         lv_refr_now(lv_disp_get_default());
@@ -104,9 +143,11 @@ void setup()
         lvgl_port_unlock();
     }
 
+    // Backlight manager normal (timeout, activity, etc.)
     app_bl_init();
-
 }
+
+
 
 // ===== Indicador por IR/CLEAN =====
 static bool s_ir_active = false;
@@ -147,6 +188,14 @@ void update_cabin_indicator(void)
 void loop()
 {
     uint32_t now = millis();
+    
+    // ===== ⏱️ TICK DE 1 SEGUNDO (RELOJ MAESTRO) =====
+    static uint32_t last_1s = 0;
+    if (now - last_1s >= 1000) {
+        last_1s += 1000;
+        clock_manager_tick_1s();
+    }
+    // ==============================================
 
     // 1) Si estaba listo pero el STM32 se apagó -> marco desconectado
     if (stm_ready && (now - last_rx_ms > LINK_TIMEOUT_MS)) {
@@ -172,7 +221,7 @@ void loop()
                 break;
             case Uart::EVT_TIMER_ACTIVE:
                 s_timer_active = (p.value != 0);
-                app_bl_register_activity(now); // ✅
+                //app_bl_register_activity(now); // ✅
                 update_cabin_indicator();
                 break;
 
@@ -223,13 +272,12 @@ void loop()
             lvgl_port_unlock();
         }
     }
-    app_bl_tick(now);
+    //app_bl_tick(now);
   
     // 5) Tick LVGL
     delay(5);
     if (lvgl_port_lock(0)) {
-        process_time_save_job();
-        lv_timer_handler();   
+        time_job_tick();
         lvgl_port_unlock();
     }
 }

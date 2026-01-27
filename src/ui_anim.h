@@ -9,6 +9,7 @@ extern "C" {
 
 void ui_logo_start_sequence(uint32_t backlight_delay_ms,
                             uint32_t fade_time_ms);
+bool ui_logo_is_done(void);
 
 #ifdef __cplusplus
 }

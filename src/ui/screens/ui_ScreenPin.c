@@ -32,11 +32,8 @@ void ui_event_TextAreaPinUser(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_FOCUSED) {
-        ui_event_PinUser_Focused(e);
-    }
-    if(event_code == LV_EVENT_DEFOCUSED) {
-        ui_event_PinUser_Defocused(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_event_PinUser_Clicked(e);
     }
 }
 
@@ -44,11 +41,8 @@ void ui_event_TextAreaPinAdvanced(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_FOCUSED) {
-        ui_event_PinAdvanced_Focused(e);
-    }
-    if(event_code == LV_EVENT_DEFOCUSED) {
-        ui_event_PinAdvanced_Defocused(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_event_PinAdvanced_Clicked(e);
     }
 }
 

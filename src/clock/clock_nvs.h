@@ -1,7 +1,15 @@
 #pragma once
-#include <stdint.h>
 #include <stdbool.h>
+#include "clock_manager.h"  // trae ClockDateTime
 
-void clock_nvs_init();
-bool clock_nvs_load(int64_t *epoch_out);
-void clock_nvs_save(int64_t epoch);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void clock_nvs_init(void);
+bool clock_nvs_load(ClockDateTime& out);
+void clock_nvs_save(const ClockDateTime& in);
+
+#ifdef __cplusplus
+}
+#endif

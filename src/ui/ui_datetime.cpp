@@ -1,12 +1,10 @@
 #include <lvgl.h>
 #include <cstdio>
-#include <time.h>
-#include <sys/time.h>
-
 #include "ui/ui.h"
 #include "ui/ui_datetime.h"
 #include "components/ui_comp.h"
 #include "components/ui_comp_topBar.h"
+#include "clock/clock_manager.h"
 
 // ====== Config ======
 static int s_year_start = 2024;
@@ -17,6 +15,7 @@ static bool s_is_pm = false;
 
 // Si estás editando en ScreenDate, puedes evitar que el timer pise controles
 static bool s_editing = false;
+static bool s_loading_controls = false;
 
 static char s_years_buf[512];
 static char s_days_buf[160];
@@ -41,6 +40,17 @@ static int sMi = 0;
 static int sS = 0;
 
 // ====== Helpers ======
+
+static bool ui_get_is_pm_from_drop()
+{
+    // AJUSTA si tu dropdown es 0=AM, 1=PM
+    // Si no tienes dropdown, aquí puedes volver a s_is_pm.
+    if (ui_DropdownAmPm) {
+        return (lv_dropdown_get_selected(ui_DropdownAmPm) == 1);
+    }
+    return s_is_pm;
+}
+ 
 static bool is_leap_year(int y) {
     return ((y % 4 == 0) && (y % 100 != 0)) || (y % 400 == 0);
 }
@@ -152,61 +162,35 @@ static int get_hour24_ui()
     if (s_format_24h) {
         return roller_get_int(ui_RollerH); // "00".."23"
     } else {
-        // en 12h sigues usando s_is_pm + valor mostrado (01..12)
         int h12 = roller_get_int(ui_RollerH); // "01".."12"
-        bool pm = s_is_pm;
+        bool pm = ui_get_is_pm_from_drop();
+
         if (!pm) return (h12 == 12) ? 0 : h12;
         else     return (h12 == 12) ? 12 : (h12 + 12);
     }
 }
 
 
-static void set_system_time(int Y,int Mo,int D,int H,int Mi,int S)
-{
-    struct tm t = {};
-    t.tm_year = Y - 1900;
-    t.tm_mon  = Mo - 1;
-    t.tm_mday = D;
-    t.tm_hour = H;
-    t.tm_min  = Mi;
-    t.tm_sec  = S;
-
-    time_t epoch = mktime(&t);
-    struct timeval tv = { .tv_sec = epoch, .tv_usec = 0 };
-    settimeofday(&tv, nullptr);
-}
-
-// Lee time() y actualiza variables internas + labels
-static void load_internal_from_system_time()
-{
-    time_t now = time(nullptr);
-    if (now < 100000) return; // no seteado
-
-    struct tm tmnow;
-    localtime_r(&now, &tmnow);
-
-    sY  = tmnow.tm_year + 1900;
-    sMo = tmnow.tm_mon + 1;
-    sD  = tmnow.tm_mday;
-    sH  = tmnow.tm_hour;
-    sMi = tmnow.tm_min;
-    sS  = tmnow.tm_sec;
-}
-
 static void datetime_timer_cb(lv_timer_t *t)
 {
     (void)t;
 
-    // Si estás editando ScreenDate, no toques los rollers.
-    // Pero si quieres, puedes seguir refrescando el preview con lo editado:
+    // Si estás editando, NO pises rollers/preview
     if (s_editing) {
-        // mantiene vivo el preview mientras editas
         if (ui_LabelPreviewDateTime) ui_datetime_refresh_preview_label();
         return;
     }
 
-    load_internal_from_system_time();
-    render_datetime_current();
+    // ✅ Fuente de verdad: clock_manager
+    ClockDateTime dt;
+    if (clock_manager_get_now(dt)) {
+        // actualiza cache local para render/topbar
+        ui_datetime_set_current(dt.y, dt.mo, dt.d, dt.h, dt.mi, dt.s);
+        render_datetime_current();
+    } else {
+        // Si no hay tiempo válido, al menos renderiza lo que tengas
+        render_datetime_current();
+    }
 }
 
 // ====== Public API ======
@@ -250,7 +234,10 @@ void ui_datetime_set_format_24h(bool is24)
 void ui_datetime_set_pm(bool pm)
 {
     s_is_pm = pm;
+    if (ui_DropdownAmPm) lv_dropdown_set_selected(ui_DropdownAmPm, pm ? 1 : 0);
+    ui_datetime_refresh_preview_label();
 }
+
 
 // ✅ NUEVO: marca si estás editando en ScreenDate
 void ui_datetime_set_editing(bool editing)
@@ -258,47 +245,10 @@ void ui_datetime_set_editing(bool editing)
     s_editing = editing;
 }
 
-// ✅ NUEVO: carga los rollers desde la hora real del sistema (que viene del DS3231 al boot)
-void ui_datetime_load_from_system_to_controls(void)
-{
-    load_internal_from_system_time();
-
-    // Año
-    int y_idx = sY - s_year_start;
-    if (y_idx < 0) y_idx = 0;
-    if (y_idx >= s_year_count) y_idx = s_year_count - 1;
-    lv_roller_set_selected(ui_RollerAno, (uint16_t)y_idx, LV_ANIM_OFF);
-
-    // Mes
-    lv_roller_set_selected(ui_RollerMes, (uint16_t)(sMo - 1), LV_ANIM_OFF);
-
-    // Días
-    int maxd = days_in_month(sY, sMo);
-    build_days_options(maxd);
-    int dd = sD;
-    if (dd > maxd) dd = maxd;
-    lv_roller_set_selected(ui_RollerDia, (uint16_t)(dd - 1), LV_ANIM_OFF);
-
-    // Hora / Min
-    if (s_format_24h) {
-        lv_roller_set_selected(ui_RollerH, (uint16_t)sH, LV_ANIM_OFF);
-    } else {
-        bool pm = (sH >= 12);
-        s_is_pm = pm;
-        int h12 = sH % 12; if (h12 == 0) h12 = 12;
-        lv_roller_set_selected(ui_RollerH, (uint16_t)(h12 - 1), LV_ANIM_OFF);
-        // si usas dropdown AM/PM:
-        // lv_dropdown_set_selected(ui_DropdownAmPm, pm ? 1 : 0);
-    }
-
-    lv_roller_set_selected(ui_RollerM, (uint16_t)sMi, LV_ANIM_OFF);
-
-    ui_datetime_refresh_preview_label();
-}
-
-// ✅ NUEVO: carga rollers desde el reloj interno (sY,sMo,sD,sH,sMi) SIN time()
 void ui_datetime_load_from_current_to_controls(void)
 {
+    s_loading_controls = true;
+
     // Año
     int y_idx = sY - s_year_start;
     if (y_idx < 0) y_idx = 0;
@@ -315,23 +265,39 @@ void ui_datetime_load_from_current_to_controls(void)
     if (dd > maxd) dd = maxd;
     lv_roller_set_selected(ui_RollerDia, (uint16_t)(dd - 1), LV_ANIM_OFF);
 
-    // Hora / Min
+    // Min
+    lv_roller_set_selected(ui_RollerM, (uint16_t)sMi, LV_ANIM_OFF);
+
+    // Hora + AM/PM
     if (s_format_24h) {
+        lv_roller_set_options(ui_RollerH, HOURS_24, LV_ROLLER_MODE_NORMAL);
         lv_roller_set_selected(ui_RollerH, (uint16_t)sH, LV_ANIM_OFF);
     } else {
+        lv_roller_set_options(ui_RollerH, HOURS_12, LV_ROLLER_MODE_NORMAL);
+
         bool pm = (sH >= 12);
-        s_is_pm = pm;
         int h12 = sH % 12; if (h12 == 0) h12 = 12;
+
+        // ✅ esto es lo que te falta:
+        if (ui_DropdownAmPm) lv_dropdown_set_selected(ui_DropdownAmPm, pm ? 1 : 0);
+
+        // por compatibilidad, mantén también la variable:
+        s_is_pm = pm;
+
         lv_roller_set_selected(ui_RollerH, (uint16_t)(h12 - 1), LV_ANIM_OFF);
     }
 
-    lv_roller_set_selected(ui_RollerM, (uint16_t)sMi, LV_ANIM_OFF);
+    s_loading_controls = false;
 
+    // ✅ al final, ya con todo seteado
     ui_datetime_refresh_preview_label();
 }
 
+
 void ui_datetime_refresh_preview_label(void)
-{
+{ 
+    if (s_loading_controls) return;
+
     int Y  = get_year_ui();
     int Mo = get_month_ui();
     int D  = get_day_ui();
@@ -342,6 +308,7 @@ void ui_datetime_refresh_preview_label(void)
 
     if (!s_format_24h) {
         int h12 = (int)lv_roller_get_selected(ui_RollerH) + 1;
+        bool pm = ui_get_is_pm_from_drop();  
         std::snprintf(buf, sizeof(buf),
                       "%02d/%02d/%04d  %02d:%02d %s",
                       D, Mo, Y, h12, mi, s_is_pm ? "PM" : "AM");
@@ -368,26 +335,21 @@ void ui_datetime_get_values(int *Y,int *Mo,int *D,int *h24,int *mi)
     if (mi)  *mi  = get_min_ui();
 }
 
-// ✅ NUEVO: aplica lo editado por UI al reloj del sistema
-// (y refresca labels). El guardado al DS3231 lo haces donde prefieras.
-void ui_datetime_apply_controls_to_system_time(int seconds /*=0*/)
-{
-    int Y,Mo,D,h24,mi;
-    ui_datetime_get_values(&Y,&Mo,&D,&h24,&mi);
-
-    set_system_time(Y,Mo,D,h24,mi,seconds);
-
-    // actualiza interno + labels
-    load_internal_from_system_time();
-    render_datetime_current();
-}
 
 void ui_datetime_start_timer(void)
 {
+    // sync inicial
+    ClockDateTime dt;
+    if (clock_manager_get_now(dt)) {
+        ui_datetime_set_current(dt.y, dt.mo, dt.d, dt.h, dt.mi, dt.s);
+        render_datetime_current();
+    }
+
     if (!s_dt_timer) {
         s_dt_timer = lv_timer_create(datetime_timer_cb, 1000, NULL);
     }
 }
+
 
 void ui_datetime_stop_timer(void)
 {

@@ -42,8 +42,6 @@ extern lv_obj_t * ui_ButtonSettings;
 extern lv_obj_t * ui_PanelClean;
 extern void ui_event_ButtonClean(lv_event_t * e);
 extern lv_obj_t * ui_ButtonClean;
-extern lv_obj_t * ui_Container2;
-extern lv_obj_t * ui_Image3;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenMain;
 extern lv_obj_t * uic_ContainerMain;

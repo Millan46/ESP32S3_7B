@@ -1,0 +1,192 @@
+warning: in the working copy of 'src/ui/project.info', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/ui/screens/ui_ScreenMain.c', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/ui/screens/ui_ScreenMain.h', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/clock/clock_core.cpp b/src/clock/clock_core.cpp[m
+[1mindex 9aab6a5..3b95f22 100644[m
+[1m--- a/src/clock/clock_core.cpp[m
+[1m+++ b/src/clock/clock_core.cpp[m
+[36m@@ -60,3 +60,8 @@[m [mvoid clock_periodic_save_tick(uint32_t every_ms)[m
+ [m
+   clock_save_fallback_now();[m
+ }[m
+[32m+[m[32mvoid clock_prewarm_time_lock()[m
+[32m+[m[32m{[m
+[32m+[m[32m  struct timeval tv = { .tv_sec = 0, .tv_usec = 0 };[m
+[32m+[m[32m  settimeofday(&tv, nullptr);[m
+[32m+[m[32m}[m
+[1mdiff --git a/src/clock/clock_core.h b/src/clock/clock_core.h[m
+[1mindex 827b5f2..b6c2620 100644[m
+[1m--- a/src/clock/clock_core.h[m
+[1m+++ b/src/clock/clock_core.h[m
+[36m@@ -11,3 +11,5 @@[m [mbool clock_restore_fallback();[m
+ void clock_save_fallback_now();[m
+ [m
+ void clock_periodic_save_tick(uint32_t every_ms);[m
+[32m+[m[32mvoid clock_prewarm_time_lock();[m
+[41m+[m
+[1mdiff --git a/src/main.cpp b/src/main.cpp[m
+[1mindex 62482a9..76b5f80 100644[m
+[1m--- a/src/main.cpp[m
+[1m+++ b/src/main.cpp[m
+[36m@@ -67,13 +67,39 @@[m [mvoid setup()[m
+ [m
+     tp_handle    = touch_gt911_init();[m
+     panel_handle = waveshare_esp32_s3_rgb_lcd_init();[m
+[32m+[m[32m    wavesahre_rgb_lcd_bl_off();   // 👈 lo más pronto posible[m
+ [m
+     ESP_ERROR_CHECK(lvgl_port_init(panel_handle, tp_handle));[m
+ [m
+[32m+[m[32m    // ⚠️ IMPORTANTE (si tu BL por defecto está apagado):[m
+[32m+[m[32m    // Si app_bl_init() te apaga/enciende BL y quieres ver el logo SIEMPRE,[m
+[32m+[m[32m    // puedes dejarlo al final, porque tu secuencia del logo ya controla BL.[m
+[32m+[m[32m    // app_bl_init();[m
+[32m+[m
+     if (lvgl_port_lock(-1)) {[m
+ [m
+[32m+[m[32m            // ✅ fuerza fondo negro inmediato[m
+[32m+[m[32m       lv_obj_t * scr = lv_scr_act();[m
+[32m+[m[32m       lv_obj_set_style_bg_color(scr, lv_color_black(), 0);[m
+[32m+[m[32m       lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);[m
+[32m+[m[32m       lv_refr_now(lv_disp_get_default());[m
+[32m+[m
+         ui_init();[m
+ [m
+[32m+[m[32m        // ====== LOGO ======[m
+[32m+[m[32m        lv_scr_load(ui_ScreenLogo);[m
+[32m+[m[32m        lv_obj_invalidate(lv_scr_act());[m
+[32m+[m[32m        lv_refr_now(lv_disp_get_default());   // dibuja una vez[m
+[32m+[m
+[32m+[m[32m        ui_logo_start_sequence(500, 3000);[m
+[32m+[m
+[32m+[m[32m        // ✅ Deja correr timers/animaciones LVGL hasta que termine el logo[m
+[32m+[m[32m        while (!ui_logo_is_done()) {[m
+[32m+[m[32m            lv_timer_handler();[m
+[32m+[m[32m            delay(5);[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        // ====== TU FLUJO NORMAL ======[m
+         modes_storage_init();[m
+         modes_storage_load();[m
+         apply_mode_safe(UI_MODE_DEFAULT);[m
+[36m@@ -82,32 +108,32 @@[m [mvoid setup()[m
+ [m
+         clock_manager_init();[m
+ [m
+[31m-        // ✅ Timer del UI (TopBar/Preview)[m
+[32m+[m[32m        // Timer del UI (TopBar/Preview)[m
+         ui_datetime_start_timer();[m
+ [m
+[31m-        // ✅ SIEMPRE ir a ScreenDate al encender[m
+[32m+[m[32m        // SIEMPRE ir a ScreenDate al encender[m
+         lv_scr_load(ui_ScreenDate);[m
+ [m
+         ui_datetime_init_controls();[m
+         ui_datetime_set_editing(true);[m
+ [m
+[31m-         // tu reloj interno default (o el que tengas guardado)[m
+[32m+[m[32m        // reloj interno default (o el que tengas guardado)[m
+         ui_datetime_set_current(2026, 1, 1, 0, 0, 0);[m
+ [m
+[31m-        // ✅ NO usa time()[m
+[32m+[m[32m        // NO usa time()[m
+         ui_datetime_load_from_current_to_controls();[m
+ [m
+[31m-[m
+         lv_obj_invalidate(lv_scr_act());[m
+         lv_refr_now(lv_disp_get_default());[m
+ [m
+         lvgl_port_unlock();[m
+     }[m
+ [m
+[32m+[m[32m    // Backlight manager normal (timeout, activity, etc.)[m
+     app_bl_init();[m
+[31m-[m
+ }[m
+ [m
+[32m+[m
+ // ===== Indicador por IR/CLEAN =====[m
+ static bool s_ir_active = false;[m
+ static uint32_t s_ir_last_ms = 0;[m
+[36m@@ -172,7 +198,7 @@[m [mvoid loop()[m
+                 break;[m
+             case Uart::EVT_TIMER_ACTIVE:[m
+                 s_timer_active = (p.value != 0);[m
+[31m-                app_bl_register_activity(now); // ✅[m
+[32m+[m[32m                //app_bl_register_activity(now); // ✅[m
+                 update_cabin_indicator();[m
+                 break;[m
+ [m
+[36m@@ -223,7 +249,7 @@[m [mvoid loop()[m
+             lvgl_port_unlock();[m
+         }[m
+     }[m
+[31m-    app_bl_tick(now);[m
+[32m+[m[32m    //app_bl_tick(now);[m
+   [m
+     // 5) Tick LVGL[m
+     delay(5);[m
+[1mdiff --git a/src/ui/project.info b/src/ui/project.info[m
+[1mindex fc07f09..5bc61c9 100644[m
+[1m--- a/src/ui/project.info[m
+[1m+++ b/src/ui/project.info[m
+[36m@@ -1,9 +1,9 @@[m
+ {[m
+     "project_name": "HMI_ESP32_S3_7B.spj",[m
+[31m-    "datetime": "2026-01-23T11:00:24.4144699+00:00",[m
+[32m+[m[32m    "datetime": "2026-01-23T17:51:27.4171796+00:00",[m
+     "editor_version": "1.6.0",[m
+[31m-    "project_version": 129,[m
+[32m+[m[32m    "project_version": 130,[m
+     "user": " ",[m
+[31m-    "export_datetime": "2026-01-23T11:00:29.7280113+00:00",[m
+[32m+[m[32m    "export_datetime": "2026-01-23T17:51:28.9407530+00:00",[m
+     "export_user": " "[m
+ }[m
+[1mdiff --git a/src/ui/screens/ui_ScreenMain.c b/src/ui/screens/ui_ScreenMain.c[m
+[1mindex d0f7c0a..011fa47 100644[m
+[1m--- a/src/ui/screens/ui_ScreenMain.c[m
+[1m+++ b/src/ui/screens/ui_ScreenMain.c[m
+[36m@@ -45,8 +45,6 @@[m [mlv_obj_t * ui_PanelSet = NULL;[m
+ lv_obj_t * ui_ButtonSettings = NULL;[m
+ lv_obj_t * ui_PanelClean = NULL;[m
+ lv_obj_t * ui_ButtonClean = NULL;[m
+[31m-lv_obj_t * ui_Container2 = NULL;[m
+[31m-lv_obj_t * ui_Image3 = NULL;[m
+ // event funtions[m
+ void ui_event_ButtonPhone(lv_event_t * e)[m
+ {[m
+[36m@@ -399,23 +397,6 @@[m [mvoid ui_ScreenMain_screen_init(void)[m
+     ui_object_set_themeable_style_property(ui_ButtonClean, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR_OPA,[m
+                                            _ui_theme_alpha_IndicatorOn);[m
+ [m
+[31m-    ui_Container2 = lv_obj_create(ui_ContainerMain);[m
+[31m-    lv_obj_remove_style_all(ui_Container2);[m
+[31m-    lv_obj_set_width(ui_Container2, 235);[m
+[31m-    lv_obj_set_height(ui_Container2, 75);[m
+[31m-    lv_obj_clear_flag(ui_Container2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags[m
+[31m-[m
+[31m-    ui_Image3 = lv_img_create(ui_Container2);[m
+[31m-    lv_img_set_src(ui_Image3, &ui_img_1615156922);[m
+[31m-    lv_obj_set_width(ui_Image3, LV_SIZE_CONTENT);   /// 501[m
+[31m-    lv_obj_set_height(ui_Image3, LV_SIZE_CONTENT);    /// 175[m
+[31m-    lv_obj_set_x(ui_Image3, 7);[m
+[31m-    lv_obj_set_y(ui_Image3, 9);[m
+[31m-    lv_obj_set_align(ui_Image3, LV_ALIGN_CENTER);[m
+[31m-    lv_obj_add_flag(ui_Image3, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags[m
+[31m-    lv_obj_clear_flag(ui_Image3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags[m
+[31m-    lv_img_set_zoom(ui_Image3, 100);[m
+[31m-[m
+     lv_obj_add_event_cb(ui_ButtonPhone, ui_event_ButtonPhone, LV_EVENT_ALL, NULL);[m
+     lv_obj_add_event_cb(ui_ButtonWork, ui_event_ButtonWork, LV_EVENT_ALL, NULL);[m
+     lv_obj_add_event_cb(ui_ButtonRelax, ui_event_ButtonRelax, LV_EVENT_ALL, NULL);[m
+[36m@@ -491,7 +472,5 @@[m [mvoid ui_ScreenMain_screen_destroy(void)[m
+     ui_PanelClean = NULL;[m
+     uic_ButtonClean = NULL;[m
+     ui_ButtonClean = NULL;[m
+[31m-    ui_Container2 = NULL;[m
+[31m-    ui_Image3 = NULL;[m
+ [m
+ }[m
+[1mdiff --git a/src/ui/screens/ui_ScreenMain.h b/src/ui/screens/ui_ScreenMain.h[m
+[1mindex 666f411..4b84a53 100644[m
+[1m--- a/src/ui/screens/ui_Scree
