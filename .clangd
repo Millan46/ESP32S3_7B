@@ -1,0 +1,9 @@
+CompileFlags:
+  Remove:
+    - -mfix-esp32-psram-cache-issue
+    - -mlongcalls
+    - -mdisable-hardware-atomics
+    - -fstrict-volatile-bitfields
+    - -fno-tree-switch-conversion
+  Add:
+    - -mlong-calls

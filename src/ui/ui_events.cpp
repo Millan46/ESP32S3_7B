@@ -11,9 +11,7 @@
 #include "lvgl.h"
 #include <sys/time.h>
 #include <time.h>
-#include "RTClib.h"
 #include <cstring>
-
 // App / drivers
 #include "drivers/uart/uart.h"
 #include "ui_sync.h"
@@ -31,7 +29,7 @@
 #include "time_job.h"
 
 extern bool s_clean_active;
-extern RTC_DS3231 rtc;
+
 // =======================================================
 // Local state
 // =======================================================
@@ -68,18 +66,34 @@ static void pin_set_active(lv_obj_t * ta)
 {
     if (s_pin_active == ta) return;
 
-    // ✅ quita focus del anterior
-    if (s_pin_active) {
-        lv_obj_clear_state(s_pin_active, LV_STATE_FOCUSED);
+    lv_group_t * g = lv_group_get_default();
+
+    if (s_pin_active) lv_obj_clear_state(s_pin_active, LV_STATE_FOCUSED);
+
+    if (g) {
+        lv_group_set_editing(g, false);     // suelta edición
+        if (ta == NULL) lv_group_focus_freeze(g, false); // por si estaba congelado
     }
 
     s_pin_active = ta;
 
-    if (s_pin_active) {
-        lv_obj_add_state(s_pin_active, LV_STATE_FOCUSED);
-        lv_textarea_set_cursor_click_pos(s_pin_active, true);
+    if (!s_pin_active) {
+        // ✅ suelta también el foco del group para que no apunte a un obj muerto
+        if (g) lv_group_focus_obj(lv_scr_act()); // o cualquier objeto "seguro"
+        return;
+    }
+
+    lv_obj_clear_state(s_pin_active, LV_STATE_DISABLED);
+    lv_obj_add_state(s_pin_active, LV_STATE_FOCUSED);
+    lv_textarea_set_cursor_click_pos(s_pin_active, true);
+
+    // foco real
+    if (g) {
+        lv_group_focus_obj(s_pin_active);
+        lv_group_set_editing(g, true);
     }
 }
+
 
 static inline bool is_textarea(lv_obj_t * obj)
 {
@@ -96,6 +110,8 @@ static void settings_prepare_cb(void * /*arg*/)
 
     lv_textarea_set_password_mode(ui_TextAreaPinSettings, true);
     lv_textarea_set_password_show_time(ui_TextAreaPinSettings, 0);
+
+    pin_set_active(ui_TextAreaPinSettings);
 
     lv_obj_invalidate(ui_TextAreaPinSettings);
 }
@@ -228,6 +244,12 @@ static bool is_digits_only(const char *s)
     return true;
 }
 
+static inline void ui_wait_touch_release(void)
+{
+    lv_indev_t * indev = lv_indev_get_act();
+    if (indev) lv_indev_wait_release(indev);
+}
+
 static inline void pin_ok(void)
 {
     const char *p = pin_get_text();
@@ -241,11 +263,21 @@ static inline void pin_ok(void)
         if (std::strcmp(p, g_pin_user) == 0) {
             ta_flash_ok(ui_TextAreaPinSettings);
             pin_clear_active();
+
+            // ✅ importantísimo para que no quede el touch "capturado"
+            pin_set_active(nullptr);
+            ui_wait_touch_release();
+
             go_screen(ui_ScreenOption);
         }
         else if (std::strcmp(p, g_pin_adv) == 0) {
             ta_flash_ok(ui_TextAreaPinSettings);
             pin_clear_active();
+
+            // ✅ importantísimo
+            pin_set_active(nullptr);
+            ui_wait_touch_release();
+
             go_screen(ui_ScreenAdvanced);
         }
         else {
@@ -275,10 +307,12 @@ static inline void pin_ok(void)
 
             pin_save(g_pin_user, g_pin_adv);
 
-            // refresca UI
             ta_flash_ok(ui_TextAreaPinUser);
             lv_textarea_set_text(ui_TextAreaPinUser, "");
             lv_textarea_set_placeholder_text(ui_TextAreaPinUser, g_pin_user);
+
+            // opcional: seguir escribiendo en USER
+            pin_set_active(ui_TextAreaPinUser);
             return;
         }
 
@@ -292,20 +326,16 @@ static inline void pin_ok(void)
             ta_flash_ok(ui_TextAreaPinAdvanced);
             lv_textarea_set_text(ui_TextAreaPinAdvanced, "");
             lv_textarea_set_placeholder_text(ui_TextAreaPinAdvanced, g_pin_adv);
+
+            // opcional: seguir escribiendo en ADV
+            pin_set_active(ui_TextAreaPinAdvanced);
             return;
         }
 
-        // si no estaba en un textarea conocido
         if (s_pin_active) ta_flash_bad(s_pin_active);
         pin_clear_active();
         return;
     }
-
-    // =========================
-    // C) Default: no-op
-    // =========================
-    if (s_pin_active) ta_flash_bad(s_pin_active);
-    pin_clear_active();
 }
 
 // =======================================================
@@ -376,11 +406,14 @@ void ui_event_PrivateSlider_ValueChanged(lv_event_t * e)
 void ui_event_ButtonSettings_Clicked(lv_event_t * e)
 {
     if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
-    go_screen(ui_ScreenSettings);
-    lv_async_call(settings_prepare_cb, nullptr);
 
-    pin_set_active(ui_TextAreaPinSettings);
-    lv_obj_add_state(ui_TextAreaPinSettings, LV_STATE_FOCUSED);
+    // ✅ suelta cualquier TA del ScreenPin ANTES de irte
+    pin_set_active(NULL);
+
+    go_screen(ui_ScreenSettings);
+
+    // ✅ cuando la screen ya esté cargada, activa el TA de settings
+    lv_async_call(settings_prepare_cb, NULL);
 }
 
 // ---------- CLEAN toggle ----------
@@ -429,17 +462,30 @@ void ui_event_ButtonBackDate_Clicked(lv_event_t * e)
     go_screen(ui_ScreenOption);
 }
 
-// ---------- Settings PIN focus/defocus (optional hook) ----------
+// ---------- Settings PIN focus/defocus ----------
 void ui_event_PinSettings_Focused(lv_event_t * e)
 {
-    (void)e;
-    // If you want Settings PIN to use keypad, set active textarea here
+    if (lv_event_get_code(e) != LV_EVENT_FOCUSED &&
+        lv_event_get_code(e) != LV_EVENT_CLICKED) return;
+
+    // engancha el keypad al TA de Settings
+    pin_set_active(ui_TextAreaPinSettings);
+
+    // opcional: asegura cursor por click
+    lv_textarea_set_cursor_click_pos(ui_TextAreaPinSettings, true);
+
+    // si tienes teclado en pantalla:
+    // lv_keyboard_set_textarea(ui_Keyboard, ui_TextAreaPinSettings);
 }
 
 void ui_event_PinSettings_Defocused(lv_event_t * e)
 {
-    (void)e;
+    if (lv_event_get_code(e) != LV_EVENT_DEFOCUSED) return;
+
+    // ⚠️ NO llames pin_set_active(NULL) aquí.
+    // En cambios de screen LVGL dispara DEFOCUSED y eso te apaga el editing del group.
 }
+
 
 // ---------- Back from Settings to Main ----------
 void ui_event_ButtonBackHome_Clicked(lv_event_t * e)
@@ -679,10 +725,6 @@ void ui_event_TextAreaPinSettings_Defocused(lv_event_t * e)
 {
     if (lv_event_get_code(e) != LV_EVENT_DEFOCUSED) return;
 
-    // Limpia el textarea activo si era Settings
-    if (s_pin_active == ui_TextAreaPinSettings) {
-        pin_set_active(nullptr);
-    }
 }
 
 void ui_event_RollerAno_ValueChanged(lv_event_t * e)
