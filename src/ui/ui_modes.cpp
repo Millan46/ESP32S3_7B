@@ -2,13 +2,13 @@
 
 #include "ui_modes.h"
 
-#include "ui/ui.h"
+#include "ui.h"
 #include "ui_sync.h"
 #include "drivers/uart/uart.h"
 #include "drivers/lvgl_port/lvgl_port.h"
 #include "lvgl.h"
-#include "app_helpers.h"
-#include "ui/screens/ui_ScreenControl.h"   // ui_SliderLed / ui_SliderFan
+#include "core/app_helpers.h"
+#include "screens/ui_ScreenControl.h"   // ui_SliderLed / ui_SliderFan
 #include "components/ui_comp.h"
 #include "components/ui_comp_topBar.h"
 

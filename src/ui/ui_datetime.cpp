@@ -1,7 +1,7 @@
 #include <lvgl.h>
 #include <cstdio>
-#include "ui/ui.h"
-#include "ui/ui_datetime.h"
+#include "ui.h"
+#include "ui_datetime.h"
 #include "components/ui_comp.h"
 #include "components/ui_comp_topBar.h"
 #include "clock/clock_manager.h"

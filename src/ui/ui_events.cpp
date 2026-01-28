@@ -9,24 +9,22 @@
 
 #include "ui.h"
 #include "lvgl.h"
-#include <sys/time.h>
-#include <time.h>
 #include <cstring>
 // App / drivers
 #include "drivers/uart/uart.h"
 #include "ui_sync.h"
 #include "ui_modes.h"
 #include "ui_modes_storage.h"
-#include "pin_store.h"
+#include "core/pin_store.h"
 
 // Components (topBar child access)
 #include "components/ui_comp.h"
 #include "components/ui_comp_topBar.h"
 
 // Your custom helpers (C++ .cpp)
-#include "app_helpers.h"
+#include "core/app_helpers.h"
 #include "ui_datetime.h"
-#include "time_job.h"
+#include "clock/time_job.h"
 
 extern bool s_clean_active;
 

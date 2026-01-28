@@ -2,17 +2,17 @@
 
 #include "drivers/lvgl_port/lvgl_port.h"
 #include "ui/ui.h"
-#include "ui_anim.h"
+#include "anim/ui_anim.h"
 
 #include "drivers/uart/uart.h"
 #include "drivers/uart/protocol.h"
-#include "ui/app_helpers.h"
-#include "ui_sync.h"
-#include "ui/ui_menu.h"   // <- usa este include si ui_menu.h está en /include
+#include "ui/core/app_helpers.h"
+#include "ui/ui_sync.h"
+#include "ui/ui_menu.h" 
 #include "ui/ui_datetime.h"
 #include "ui/ui_modes.h"
 #include "ui/ui_modes_storage.h"
-#include "time_job.h"
+#include "clock/time_job.h"
 #include "clock/clock_manager.h"
 #include "clock/clock_rtc.h"
 volatile bool pir_event = false;
