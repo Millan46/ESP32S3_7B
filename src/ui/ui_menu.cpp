@@ -1,15 +1,15 @@
 #include "ui_menu.h"
 
 #include "lvgl.h"
-#include "ui/ui.h"
+#include "ui.h"
 
-#include "ui/screens/ui_ScreenMain.h"
-#include "ui/screens/ui_ScreenSettings.h"
+#include "screens/ui_ScreenMain.h"
+#include "screens/ui_ScreenSettings.h"
 
-#include "ui/screens/ui_ScreenOption.h"
-#include "ui/screens/ui_ScreenTimer.h"
-#include "ui/screens/ui_ScreenDate.h"
-#include "ui/screens/ui_ScreenModes.h"
+#include "screens/ui_ScreenOption.h"
+#include "screens/ui_ScreenTimer.h"
+#include "screens/ui_ScreenDate.h"
+#include "screens/ui_ScreenModes.h"
 
 static inline void nav_to(lv_obj_t *screen)
 {

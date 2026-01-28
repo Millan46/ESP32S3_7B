@@ -1,12 +1,12 @@
 #include "ui_sync.h"
 
 #include "lvgl.h"
-#include "ui/ui.h"
-#include "ui/app_helpers.h"
+#include "ui.h"
+#include "core/app_helpers.h"
 
 // Traemos los nombres reales de objetos de SquareLine
-#include "ui/screens/ui_ScreenControl.h"
-#include "ui/screens/ui_ScreenTimer.h"
+#include "screens/ui_ScreenControl.h"
+#include "screens/ui_ScreenTimer.h"
 
 // ==================================================
 // Protección anti-loop (ESP32 <-> STM32)
