@@ -14,16 +14,22 @@ extern "C" {
 extern void ui_ScreenInfo_screen_init(void);
 extern void ui_ScreenInfo_screen_destroy(void);
 extern lv_obj_t * ui_ScreenInfo;
-extern lv_obj_t * ui_ContainerInfo;
 extern lv_obj_t * ui_PanelBackInfo;
 extern void ui_event_ButtonBackInfo(lv_event_t * e);
 extern lv_obj_t * ui_ButtonBackInfo;
 extern lv_obj_t * ui_topBar5;
+extern lv_obj_t * ui_QRPageHolder;
+extern lv_obj_t * ui_QRSerialHolder;
+extern lv_obj_t * ui_LabelPage;
+extern lv_obj_t * ui_LabelSerial;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenInfo;
-extern lv_obj_t * uic_ContainerInfo;
 extern lv_obj_t * uic_PanelBackInfo;
 extern lv_obj_t * uic_ButtonBackInfo;
+extern lv_obj_t * uic_QRPageHolder;
+extern lv_obj_t * uic_QRSerialHolder;
+extern lv_obj_t * uic_LabelPage;
+extern lv_obj_t * uic_LabelSerial;
 
 #ifdef __cplusplus
 } /*extern "C"*/

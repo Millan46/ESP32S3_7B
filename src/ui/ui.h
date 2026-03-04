@@ -33,6 +33,7 @@ extern "C" {
 #include "screens/ui_ScreenModes.h"
 #include "screens/ui_ScreenControl.h"
 #include "screens/ui_ScreenInfo.h"
+#include "screens/ui_ScreenInfoSetup.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -60,7 +61,19 @@ LV_IMG_DECLARE(ui_img_control_png);    // assets/control.png
 LV_IMG_DECLARE(ui_img_pin_png);    // assets/pin.png
 LV_IMG_DECLARE(ui_img_setting_png);    // assets/setting.png
 LV_IMG_DECLARE(ui_img_info_png);    // assets/info.png
-
+LV_IMG_DECLARE(img_lock_br);    // assets/lock_br.png
+LV_IMG_DECLARE(img_base_azul);    // assets/base_azul.png
+LV_IMG_DECLARE(img_relax_br);    // assets/relax_br.png
+LV_IMG_DECLARE(img_work_br);    // assets/work_br.png
+LV_IMG_DECLARE(img_phone_br);    // assets/phone_br.png
+LV_IMG_DECLARE(img_clean_br);    // assets/clean_br.png
+LV_IMG_DECLARE(img_fan_br);    // assets/fan_br.png
+LV_IMG_DECLARE(img_led_br);    // assets/led_br.png
+LV_IMG_DECLARE(img_priv_br);    // assets/private_br.png
+LV_IMG_DECLARE(img_config_br);      // assets/config_br.png
+LV_IMG_DECLARE(img_info_br);    // assets/info_br.png
+LV_IMG_DECLARE(img_back_br);    // assets/back_br.png
+LV_IMG_DECLARE(ui_img_01_base_com_linha_png);    // assets/01 BASE COM LINHA.png
 // UI INIT
 void ui_init(void);
 void ui_destroy(void);

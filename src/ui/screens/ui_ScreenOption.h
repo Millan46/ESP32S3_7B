@@ -14,7 +14,6 @@ extern "C" {
 extern void ui_ScreenOption_screen_init(void);
 extern void ui_ScreenOption_screen_destroy(void);
 extern lv_obj_t * ui_ScreenOption;
-extern lv_obj_t * ui_ContainerOption;
 extern lv_obj_t * ui_topBar1;
 extern lv_obj_t * ui_PanelTimer;
 extern lv_obj_t * ui_LabelTimer;
@@ -33,7 +32,6 @@ extern void ui_event_ButtonBackOption(lv_event_t * e);
 extern lv_obj_t * ui_ButtonBackOption;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenOption;
-extern lv_obj_t * uic_ContainerOption;
 extern lv_obj_t * uic_PanelTimer;
 extern lv_obj_t * uic_LabelTimer;
 extern lv_obj_t * uic_ButtonTimer;

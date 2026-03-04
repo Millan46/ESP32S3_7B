@@ -33,16 +33,21 @@ lv_obj_t * ui_topBar_create(lv_obj_t * comp_parent)
 
     lv_obj_t * cui_IndicatorCabin;
     cui_IndicatorCabin = lv_obj_create(cui_topBar);
-    lv_obj_set_width(cui_IndicatorCabin, 350);
-    lv_obj_set_height(cui_IndicatorCabin, 30);
+    lv_obj_set_width(cui_IndicatorCabin, 500);
+    lv_obj_set_height(cui_IndicatorCabin, 15);
     lv_obj_set_x(cui_IndicatorCabin, 0);
     lv_obj_set_y(cui_IndicatorCabin, -27);
     lv_obj_set_align(cui_IndicatorCabin, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(cui_IndicatorCabin, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(cui_IndicatorCabin, lv_color_hex(0x00FF00), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_clear_flag(cui_IndicatorCabin, LV_OBJ_FLAG_SCROLLABLE); 
+    lv_obj_set_style_radius(cui_IndicatorCabin, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(cui_IndicatorCabin, 0, LV_PART_MAIN | LV_STATE_DEFAULT);     /// Flags
+    lv_obj_set_style_bg_color(cui_IndicatorCabin, lv_color_hex(0x2ECC71), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(cui_IndicatorCabin, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_opa(cui_IndicatorCabin, 180, LV_PART_MAIN | LV_STATE_DEFAULT);
-
+    lv_obj_set_style_opa(cui_IndicatorCabin, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(cui_IndicatorCabin, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_color(cui_IndicatorCabin,lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(cui_IndicatorCabin, 40, LV_PART_MAIN | LV_STATE_DEFAULT);
+    
     lv_obj_t * cui_LabelDateTime;
     cui_LabelDateTime = lv_label_create(cui_topBar);
     lv_obj_set_width(cui_LabelDateTime, LV_SIZE_CONTENT);   /// 1

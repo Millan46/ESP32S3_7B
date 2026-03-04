@@ -14,7 +14,6 @@ extern "C" {
 extern void ui_ScreenControl_screen_init(void);
 extern void ui_ScreenControl_screen_destroy(void);
 extern lv_obj_t * ui_ScreenControl;
-extern lv_obj_t * ui_ContainerControl;
 extern lv_obj_t * ui_PanelBackControl;
 extern void ui_event_ButtonBackControl(lv_event_t * e);
 extern lv_obj_t * ui_ButtonBackControl;
@@ -25,7 +24,6 @@ extern lv_obj_t * ui_LabelIR;
 extern lv_obj_t * ui_topBar6;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenControl;
-extern lv_obj_t * uic_ContainerControl;
 extern lv_obj_t * uic_PanelBackControl;
 extern lv_obj_t * uic_ButtonBackControl;
 extern lv_obj_t * uic_SwitchIR;

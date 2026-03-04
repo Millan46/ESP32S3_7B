@@ -24,7 +24,16 @@ static uint32_t last_sync_ms = 0;
 static uint32_t last_rx_ms = 0;
 static const uint32_t SYNC_PERIOD_MS = 500;
 static const uint32_t LINK_TIMEOUT_MS  = 1500;  // si 1.5s sin RX, considero caído
+// ===== Indicador por IR/CLEAN =====
+static bool s_ir_active = false;
+static uint32_t s_ir_last_ms = 0;
+static bool s_timer_active = false;  // recibido por UART
+bool g_inlock_active = false;
+// Ajusta: cuánto tiempo se queda ROJO después de un EVT_IR (si no tienes IR_OFF)
+#define IR_HOLD_MS 2000
 
+// Usa tu flag real de clean (si está en otro archivo, decláralo extern)
+extern bool s_clean_active;
 
 void print_time(const char* tag, const ClockDateTime& t) {
   Serial.printf("%s %04d-%02d-%02d %02d:%02d:%02d\n",
@@ -149,16 +158,7 @@ void setup()
 
 
 
-// ===== Indicador por IR/CLEAN =====
-static bool s_ir_active = false;
-static uint32_t s_ir_last_ms = 0;
-static bool s_timer_active = false;  // recibido por UART
 
-// Ajusta: cuánto tiempo se queda ROJO después de un EVT_IR (si no tienes IR_OFF)
-#define IR_HOLD_MS 2000
-
-// Usa tu flag real de clean (si está en otro archivo, decláralo extern)
-extern bool s_clean_active;
 bool app_is_timer_active(void)
 {
     return s_timer_active;
@@ -221,7 +221,7 @@ void loop()
                 break;
             case Uart::EVT_TIMER_ACTIVE:
                 s_timer_active = (p.value != 0);
-                //app_bl_register_activity(now); // ✅
+                app_bl_register_activity(now); // ✅
                 update_cabin_indicator();
                 break;
 
@@ -255,6 +255,22 @@ void loop()
                 ui_sync_fan_timer_from_stm(p.value);
                 break;
 
+            case Uart::EVT_INLOCK_ACTIVE:
+                g_inlock_active = (p.value == 0);
+                break;
+
+            case Uart::EVT_LOCK_STATUS:
+                if (lvgl_port_lock(0)) {
+
+                    uint8_t v = (p.value != 0) ? 1 : 0;
+
+                    lv_slider_set_value(ui_SliderLock, v, LV_ANIM_OFF);
+                    ui_panel_update_img_recolor(ui_PanelLock, v);
+
+                    lvgl_port_unlock();
+                }
+                break;
+
             default:
                 break;
         }
@@ -272,7 +288,7 @@ void loop()
             lvgl_port_unlock();
         }
     }
-    //app_bl_tick(now);
+    app_bl_tick(now);
   
     // 5) Tick LVGL
     delay(5);

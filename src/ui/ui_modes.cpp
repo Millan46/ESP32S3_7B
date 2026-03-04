@@ -110,41 +110,45 @@ void ui_modes_set_preset(int mode_index, uint8_t led, uint8_t fan, uint8_t priv)
 }
 
 // ---------- Estilo panel seleccionado ----------
-static lv_style_t s_mode_selected_style;
-static bool s_mode_style_inited = false;
+static lv_style_t s_button_checked_style;
+static bool s_button_style_inited = false;
 
-static void mode_style_init_once()
+static void button_style_init_once(void)
 {
-    if (s_mode_style_inited) return;
-    s_mode_style_inited = true;
+    if(s_button_style_inited) return;
+    s_button_style_inited = true;
 
-    lv_style_init(&s_mode_selected_style);
-    lv_style_set_bg_color(&s_mode_selected_style, lv_color_hex(0xbbbbbb));
-    lv_style_set_bg_opa(&s_mode_selected_style, LV_OPA_COVER);
-
-    // Aplica el estilo solo cuando el panel está CHECKED
-    if (ui_PanelPhone) lv_obj_add_style(ui_PanelPhone, &s_mode_selected_style, LV_STATE_CHECKED);
-    if (ui_PanelWork)  lv_obj_add_style(ui_PanelWork,  &s_mode_selected_style, LV_STATE_CHECKED);
-    if (ui_PanelRelax) lv_obj_add_style(ui_PanelRelax, &s_mode_selected_style, LV_STATE_CHECKED);
-    if (ui_PanelClean) lv_obj_add_style(ui_PanelClean, &s_mode_selected_style, LV_STATE_CHECKED);
+    lv_style_init(&s_button_checked_style);
+    lv_style_set_bg_color(&s_button_checked_style, lv_color_hex(0x187790));
+    lv_style_set_bg_opa(&s_button_checked_style, LV_OPA_COVER);
 }
 
-static void deselect_all_mode_buttons()
+static void select_mode(lv_obj_t * selected)
 {
-    if (ui_ButtonPhone) lv_obj_clear_state(ui_ButtonPhone, LV_STATE_CHECKED);
-    if (ui_ButtonWork)  lv_obj_clear_state(ui_ButtonWork,  LV_STATE_CHECKED);
-    if (ui_ButtonRelax) lv_obj_clear_state(ui_ButtonRelax, LV_STATE_CHECKED);
-    if (ui_ButtonClean) lv_obj_clear_state(ui_ButtonClean, LV_STATE_CHECKED);
+    // Usar la función oficial del módulo
+    ui_modes_deselect_all();
 
-    if (ui_PanelPhone) lv_obj_clear_state(ui_PanelPhone, LV_STATE_CHECKED);
-    if (ui_PanelWork)  lv_obj_clear_state(ui_PanelWork,  LV_STATE_CHECKED);
-    if (ui_PanelRelax) lv_obj_clear_state(ui_PanelRelax, LV_STATE_CHECKED);
-    if (ui_PanelClean) lv_obj_clear_state(ui_PanelClean,  LV_STATE_CHECKED);
+    if(selected)
+        lv_obj_add_state(selected, LV_STATE_CHECKED);
 }
+
 void ui_modes_deselect_all(void)
 {
-    // Asume que ya estás en contexto LVGL o con lock tomado
-    deselect_all_mode_buttons();
+    lv_obj_clear_state(ui_ButtonClean, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_ButtonPhone, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_ButtonWork, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_ButtonRelax, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_ButtonSettings, LV_STATE_CHECKED);
+}
+
+static void mode_event_cb(lv_event_t * e)
+{
+    if(lv_event_get_code(e) != LV_EVENT_CLICKED) return;
+
+    lv_obj_t * obj = lv_event_get_target(e);
+
+    ui_modes_deselect_all();
+    lv_obj_add_state(obj, LV_STATE_CHECKED);
 }
 
 // Aplica a STM32 + refleja en sliders del ScreenControl
@@ -155,13 +159,16 @@ static void apply_mode_common(lv_obj_t *imgbtn_to_check,
                              uint8_t private_on,
                              bool clean_on)
 {
-    mode_style_init_once();
+    button_style_init_once();   // 🔥 CORREGIDO
 
-    led_pct = clamp_u8(led_pct, 100);
-    fan_pct = clamp_u8(fan_pct, 100);
+    uint8_t lock_on = 0;
+
+    led_pct    = clamp_u8(led_pct, 100);
+    fan_pct    = clamp_u8(fan_pct, 100);
     private_on = private_on ? 1 : 0;
+    lock_on    = 0;
 
-    deselect_all_mode_buttons();
+    ui_modes_deselect_all();     // 🔥 CORREGIDO
 
     if (imgbtn_to_check) lv_obj_add_state(imgbtn_to_check, LV_STATE_CHECKED);
     if (panel_to_check)  lv_obj_add_state(panel_to_check,  LV_STATE_CHECKED);
@@ -170,6 +177,7 @@ static void apply_mode_common(lv_obj_t *imgbtn_to_check,
     Uart::setLedLevel(led_pct);
     Uart::setFanLevel(fan_pct);
     Uart::setPrivate(private_on);
+    Uart::setLock(lock_on);
 
     // 2) UART CLEAN ON/OFF (explícito aquí para que no quede “colgado”)
     Uart::send(Uart::CMD_CLEAN, clean_on ? 1 : 0);
@@ -197,7 +205,12 @@ static void apply_mode_common(lv_obj_t *imgbtn_to_check,
         ui_panel_update_img_recolor(ui_PanelPrivate, private_on);
         lv_event_send(ui_SliderPrivate, LV_EVENT_VALUE_CHANGED, NULL);
     }
-
+    if (ui_SliderLock) {
+        lv_slider_set_range(ui_SliderLock, 0, 1);
+        lv_slider_set_value(ui_SliderLock, (int)lock_on, LV_ANIM_OFF);
+        ui_panel_update_img_recolor(ui_PanelLock, lock_on);
+        lv_event_send(ui_SliderLock, LV_EVENT_VALUE_CHANGED, NULL);
+    }
     ui_set_syncing(false);
 }
 
@@ -228,29 +241,38 @@ void apply_mode_default(void)
 void apply_mode_phone(void)
 {
     s_clean_active = false;
-    apply_mode_from_preset(MODE_PHONE, ui_ButtonPhone, ui_PanelPhone);
+
+    s_last_normal_mode = UI_MODE_PHONE;   // 🔥 asegurar último modo
+    apply_mode_from_preset(MODE_PHONE, ui_ButtonPhone, NULL);
 }
 
 void apply_mode_work(void)
 {
     s_clean_active = false;
-    apply_mode_from_preset(MODE_WORK, ui_ButtonWork, ui_PanelWork);
+
+    s_last_normal_mode = UI_MODE_WORK;    // 🔥 asegurar último modo
+    apply_mode_from_preset(MODE_WORK, ui_ButtonWork, NULL);
 }
 
 void apply_mode_relax(void)
 {
     s_clean_active = false;
-    apply_mode_from_preset(MODE_RELAX, ui_ButtonRelax, ui_PanelRelax);
+
+    s_last_normal_mode = UI_MODE_RELAX;   // 🔥 asegurar último modo
+    apply_mode_from_preset(MODE_RELAX, ui_ButtonRelax, NULL);
 }
 
 // CLEAN como toggle: si ya está ON, vuelve al último modo normal.
 void apply_mode_clean(void)
 {
-    if (s_clean_active) {
-        // apagar CLEAN y volver al último modo normal
+    if (s_clean_active)
+    {
+        // 🔥 Desactivar CLEAN
         s_clean_active = false;
 
-        switch (s_last_normal_mode) {
+        // Volver al último modo normal guardado
+        switch (s_last_normal_mode)
+        {
             case UI_MODE_PHONE: apply_mode_phone(); break;
             case UI_MODE_WORK:  apply_mode_work();  break;
             case UI_MODE_RELAX: apply_mode_relax(); break;
@@ -259,9 +281,13 @@ void apply_mode_clean(void)
         return;
     }
 
-    // activar CLEAN
+    // 🔥 Activar CLEAN
     s_clean_active = true;
-    apply_mode_from_preset(MODE_CLEAN, ui_ButtonClean, ui_PanelClean);
+
+    // Guardar que estamos en CLEAN
+    s_last_normal_mode = UI_MODE_CLEAN;
+
+    apply_mode_from_preset(MODE_CLEAN, ui_ButtonClean, NULL);
 }
 
 // ----------------------------------------------------

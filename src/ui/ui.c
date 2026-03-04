@@ -46,6 +46,7 @@ void ui_init(void)
     ui_ScreenModes_screen_init();
     ui_ScreenControl_screen_init();
     ui_ScreenInfo_screen_init();
+    ui_ScreenInfoSetup_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_ScreenLogo);
 }
@@ -63,4 +64,5 @@ void ui_destroy(void)
     ui_ScreenModes_screen_destroy();
     ui_ScreenControl_screen_destroy();
     ui_ScreenInfo_screen_destroy();
+    ui_ScreenInfoSetup_screen_destroy();
 }

@@ -30,7 +30,7 @@ lv_obj_t * ui_Slider1_create(lv_obj_t * comp_parent)
     lv_obj_set_align(cui_Slider1, LV_ALIGN_CENTER);
     lv_obj_set_style_radius(cui_Slider1, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(cui_Slider1, lv_color_hex(0x003446), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(cui_Slider1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(cui_Slider1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_set_style_radius(cui_Slider1, 10, LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(cui_Slider1, lv_color_hex(0xFBFAFA), LV_PART_INDICATOR | LV_STATE_DEFAULT);

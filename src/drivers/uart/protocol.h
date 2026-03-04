@@ -13,7 +13,8 @@ namespace Uart {
   static constexpr uint8_t CMD_CLEAN      = 0x40;  // value: segundos (0=default)
   static constexpr uint8_t CMD_PRIVATE    = 0x42;  // value: 0=OFF, 1=ON (GPIO privacy)
   static constexpr uint8_t CMD_IR_ENABLE  = 0xD0;
-
+  static constexpr uint8_t CMD_LOCK_ENABLE = 0xF0;
+  static constexpr uint8_t CMD_PRIV_ENABLE = 0xF2;
   // --- STM32 -> ESP32 (EVT) ---
   static constexpr uint8_t EVT_PIR           = 0xA0;
   static constexpr uint8_t EVT_IR            = 0xA1;
@@ -26,6 +27,9 @@ namespace Uart {
   // Timer countdown
   static constexpr uint8_t EVT_LED_REMAIN    = 0xC0;
   static constexpr uint8_t EVT_FAN_REMAIN    = 0xC1;
+
+  static constexpr uint8_t EVT_LOCK_STATUS   = 0xE0;
+  static constexpr uint8_t EVT_INLOCK_ACTIVE = 0xF1;
 
   struct Packet {
     uint8_t cmd;

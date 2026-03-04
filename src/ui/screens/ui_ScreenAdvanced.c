@@ -16,10 +16,8 @@ lv_obj_t * uic_PanelControl;
 lv_obj_t * uic_ButtonPin;
 lv_obj_t * uic_LabelPin;
 lv_obj_t * uic_PanelPin;
-lv_obj_t * uic_ContainerAdvanced;
 lv_obj_t * uic_ScreenAdvanced;
 lv_obj_t * ui_ScreenAdvanced = NULL;
-lv_obj_t * ui_ContainerAdvanced = NULL;
 lv_obj_t * ui_PanelPin = NULL;
 lv_obj_t * ui_LabelPin = NULL;
 lv_obj_t * ui_ButtonPin = NULL;
@@ -78,18 +76,17 @@ void ui_event_ButtonBackAdvanced(lv_event_t * e)
 void ui_ScreenAdvanced_screen_init(void)
 {
     ui_ScreenAdvanced = lv_obj_create(NULL);
+    lv_obj_set_style_bg_img_src(ui_ScreenAdvanced, &img_base_azul, 0);
+    lv_obj_set_style_bg_img_opa(ui_ScreenAdvanced, LV_OPA_COVER, 0);
     lv_obj_clear_flag(ui_ScreenAdvanced, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_ContainerAdvanced = lv_obj_create(ui_ScreenAdvanced);
-    lv_obj_remove_style_all(ui_ContainerAdvanced);
-    lv_obj_set_width(ui_ContainerAdvanced, lv_pct(100));
-    lv_obj_set_height(ui_ContainerAdvanced, lv_pct(100));
-    lv_obj_set_align(ui_ContainerAdvanced, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_ContainerAdvanced, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_ContainerAdvanced, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ContainerAdvanced, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_topBar3 = ui_topBar_create(ui_ScreenAdvanced);
+    lv_obj_set_x(ui_topBar3, 0);
+    lv_obj_set_y(ui_topBar3, 0);
 
-    ui_PanelPin = lv_obj_create(ui_ContainerAdvanced);
+    lv_label_set_text(ui_comp_get_child(ui_topBar3, UI_COMP_TOPBAR_LABELMENU), "Advanced");
+
+    ui_PanelPin = lv_obj_create(ui_ScreenAdvanced);
     lv_obj_set_width(ui_PanelPin, 150);
     lv_obj_set_height(ui_PanelPin, 150);
     lv_obj_set_x(ui_PanelPin, -200);
@@ -98,7 +95,8 @@ void ui_ScreenAdvanced_screen_init(void)
     lv_obj_add_flag(ui_PanelPin, LV_OBJ_FLAG_IGNORE_LAYOUT);     /// Flags
     lv_obj_clear_flag(ui_PanelPin, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_PanelPin, lv_color_hex(0x464646), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelPin, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelPin, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_PanelPin, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LabelPin = lv_label_create(ui_PanelPin);
     lv_obj_set_width(ui_LabelPin, LV_SIZE_CONTENT);   /// 1
@@ -124,18 +122,12 @@ void ui_ScreenAdvanced_screen_init(void)
     lv_obj_clear_flag(ui_ButtonPin, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_ButtonPin, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_ButtonPin, lv_color_hex(0x464646), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ButtonPin, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonPin, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_src(ui_ButtonPin, &ui_img_pin_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_recolor(ui_ButtonPin, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_recolor_opa(ui_ButtonPin, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_topBar3 = ui_topBar_create(ui_ContainerAdvanced);
-    lv_obj_set_x(ui_topBar3, 0);
-    lv_obj_set_y(ui_topBar3, 20);
-
-    lv_label_set_text(ui_comp_get_child(ui_topBar3, UI_COMP_TOPBAR_LABELMENU), "Advanced");
-
-    ui_PanelControl = lv_obj_create(ui_ContainerAdvanced);
+    ui_PanelControl = lv_obj_create(ui_ScreenAdvanced);
     lv_obj_set_width(ui_PanelControl, 150);
     lv_obj_set_height(ui_PanelControl, 150);
     lv_obj_set_x(ui_PanelControl, 0);
@@ -143,8 +135,9 @@ void ui_ScreenAdvanced_screen_init(void)
     lv_obj_set_align(ui_PanelControl, LV_ALIGN_TOP_MID);
     lv_obj_add_flag(ui_PanelControl, LV_OBJ_FLAG_IGNORE_LAYOUT);     /// Flags
     lv_obj_clear_flag(ui_PanelControl, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_PanelControl, lv_color_hex(0x464646), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_PanelControl, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_PanelControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LabelControl = lv_label_create(ui_PanelControl);
     lv_obj_set_width(ui_LabelControl, LV_SIZE_CONTENT);   /// 1
@@ -169,16 +162,13 @@ void ui_ScreenAdvanced_screen_init(void)
     lv_obj_add_flag(ui_ButtonControl, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_ButtonControl, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_ButtonControl, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_ButtonControl, lv_color_hex(0x464646), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ButtonControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_ButtonControl, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonControl, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_src(ui_ButtonControl, &ui_img_setting_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_opa(ui_ButtonControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_ButtonControl, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR,
-                                           _ui_theme_color_IndicatorOn);
-    ui_object_set_themeable_style_property(ui_ButtonControl, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR_OPA,
-                                           _ui_theme_alpha_IndicatorOn);
+    lv_obj_set_style_bg_img_recolor(ui_ButtonControl, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_recolor_opa(ui_ButtonControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_PanelInfo = lv_obj_create(ui_ContainerAdvanced);
+    ui_PanelInfo = lv_obj_create(ui_ScreenAdvanced);
     lv_obj_set_width(ui_PanelInfo, 150);
     lv_obj_set_height(ui_PanelInfo, 150);
     lv_obj_set_x(ui_PanelInfo, 200);
@@ -186,8 +176,9 @@ void ui_ScreenAdvanced_screen_init(void)
     lv_obj_set_align(ui_PanelInfo, LV_ALIGN_TOP_MID);
     lv_obj_add_flag(ui_PanelInfo, LV_OBJ_FLAG_IGNORE_LAYOUT);     /// Flags
     lv_obj_clear_flag(ui_PanelInfo, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_PanelInfo, lv_color_hex(0x464646), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelInfo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_PanelInfo, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelInfo, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_PanelInfo, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LabelInfo = lv_label_create(ui_PanelInfo);
     lv_obj_set_width(ui_LabelInfo, LV_SIZE_CONTENT);   /// 1
@@ -212,48 +203,45 @@ void ui_ScreenAdvanced_screen_init(void)
     lv_obj_add_flag(ui_ButtonInfo, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_ButtonInfo, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_ButtonInfo, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_ButtonInfo, lv_color_hex(0x464646), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ButtonInfo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_ButtonInfo, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonInfo, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_src(ui_ButtonInfo, &ui_img_info_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_opa(ui_ButtonInfo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_ButtonInfo, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR,
-                                           _ui_theme_color_IndicatorOn);
-    ui_object_set_themeable_style_property(ui_ButtonInfo, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR_OPA,
-                                           _ui_theme_alpha_IndicatorOn);
+    lv_obj_set_style_bg_img_recolor(ui_ButtonInfo, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_recolor_opa(ui_ButtonInfo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_PanelBackAdvanced = lv_obj_create(ui_ContainerAdvanced);
-    lv_obj_set_width(ui_PanelBackAdvanced, 50);
-    lv_obj_set_height(ui_PanelBackAdvanced, 50);
+
+    ui_PanelBackAdvanced = lv_obj_create(ui_ScreenAdvanced);
+    lv_obj_set_width(ui_PanelBackAdvanced, 80);
+    lv_obj_set_height(ui_PanelBackAdvanced, 80);
     lv_obj_set_x(ui_PanelBackAdvanced, 50);
     lv_obj_set_y(ui_PanelBackAdvanced, 50);
     lv_obj_clear_flag(ui_PanelBackAdvanced, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_PanelBackAdvanced, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelBackAdvanced, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelBackAdvanced, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_PanelBackAdvanced, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_PanelBackAdvanced, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_PanelBackAdvanced, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_ButtonBackAdvanced = lv_btn_create(ui_PanelBackAdvanced);
-    lv_obj_set_width(ui_ButtonBackAdvanced, 100);
-    lv_obj_set_height(ui_ButtonBackAdvanced, 50);
+    lv_obj_set_width(ui_ButtonBackAdvanced, 80);
+    lv_obj_set_height(ui_ButtonBackAdvanced, 80);
     lv_obj_set_align(ui_ButtonBackAdvanced, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_ButtonBackAdvanced, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_ButtonBackAdvanced, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_ButtonBackAdvanced, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ButtonBackAdvanced, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_src(ui_ButtonBackAdvanced, &ui_img_back_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonBackAdvanced, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_ButtonBackAdvanced, &img_back_br, LV_PART_MAIN | LV_STATE_DEFAULT);
     ui_object_set_themeable_style_property(ui_ButtonBackAdvanced, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR,
                                            _ui_theme_color_IndicatorOn);
     ui_object_set_themeable_style_property(ui_ButtonBackAdvanced, LV_PART_MAIN | LV_STATE_DEFAULT,
                                            LV_STYLE_BG_IMG_RECOLOR_OPA, _ui_theme_alpha_IndicatorOn);
     lv_obj_set_style_border_color(ui_ButtonBackAdvanced, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_ButtonBackAdvanced, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_ButtonBackAdvanced, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_ButtonPin, ui_event_ButtonPin, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonControl, ui_event_ButtonControl, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonInfo, ui_event_ButtonInfo, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonBackAdvanced, ui_event_ButtonBackAdvanced, LV_EVENT_ALL, NULL);
     uic_ScreenAdvanced = ui_ScreenAdvanced;
-    uic_ContainerAdvanced = ui_ContainerAdvanced;
     uic_PanelPin = ui_PanelPin;
     uic_LabelPin = ui_LabelPin;
     uic_ButtonPin = ui_ButtonPin;
@@ -275,8 +263,6 @@ void ui_ScreenAdvanced_screen_destroy(void)
     // NULL screen variables
     uic_ScreenAdvanced = NULL;
     ui_ScreenAdvanced = NULL;
-    uic_ContainerAdvanced = NULL;
-    ui_ContainerAdvanced = NULL;
     uic_PanelPin = NULL;
     ui_PanelPin = NULL;
     uic_LabelPin = NULL;

@@ -16,6 +16,7 @@
 #include "ui_modes.h"
 #include "ui_modes_storage.h"
 #include "core/pin_store.h"
+#include "drivers/qrcode/app_qr.h"
 
 // Components (topBar child access)
 #include "components/ui_comp.h"
@@ -27,19 +28,61 @@
 #include "clock/time_job.h"
 
 extern bool s_clean_active;
+extern bool g_inlock_active;
 
 // =======================================================
 // Local state
 // =======================================================
-
+static lv_obj_t * ui_lock_msg = NULL;
 static lv_obj_t * s_pin_active = nullptr;  // active PIN textarea
 
 static char g_pin_user[8] = "1234";
 static char g_pin_adv[8]  = "4567";
+static char g_pin_set[8]  = "7890"; 
 
 // =======================================================
 // Small helpers
 // =======================================================
+
+static void show_lock_message(void)
+{
+    if (ui_lock_msg) return;
+
+    ui_lock_msg = lv_obj_create(lv_scr_act());
+    lv_obj_set_size(ui_lock_msg, 340, 60);
+    lv_obj_align(ui_lock_msg, LV_ALIGN_CENTER, 0, -40);
+    lv_obj_clear_flag(ui_lock_msg, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_radius(ui_lock_msg, 20, 0);
+
+    /* ===== GLASS STYLE ===== */
+    lv_obj_set_style_bg_color(ui_lock_msg, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_bg_opa(ui_lock_msg, 160, 0);
+    lv_obj_set_style_border_color(ui_lock_msg, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_border_width(ui_lock_msg, 2, 0);
+    lv_obj_set_style_border_opa(ui_lock_msg, 200, 0);
+    lv_obj_set_style_shadow_width(ui_lock_msg, 10, 0);
+    lv_obj_set_style_shadow_color(ui_lock_msg, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_shadow_opa(ui_lock_msg, 120, 0);
+    lv_obj_set_style_shadow_spread(ui_lock_msg, 5, 0);
+
+    /* Texto */
+    lv_obj_t * label = lv_label_create(ui_lock_msg);
+    lv_label_set_text(label, "Please close the door");
+    lv_obj_set_style_text_color(label, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_28, 0);
+    lv_obj_center(label);
+
+    lv_timer_create(
+        [](lv_timer_t * t)
+        {
+            lv_obj_del(ui_lock_msg);
+            ui_lock_msg = NULL;
+            lv_timer_del(t);
+        },
+        2000,
+        NULL
+    );
+}
 static void set_system_time(int Y,int Mo,int D,int H,int Mi,int S)
 {
     struct tm t = {};
@@ -278,6 +321,15 @@ static inline void pin_ok(void)
 
             go_screen(ui_ScreenAdvanced);
         }
+        else if (std::strcmp(p, g_pin_set) == 0) {    
+            ta_flash_ok(ui_TextAreaPinSettings);
+            pin_clear_active();
+
+            pin_set_active(nullptr);
+            ui_wait_touch_release();
+
+            go_screen(ui_ScreenInfoSetup);      
+       }
         else {
             ta_flash_bad(ui_TextAreaPinSettings);
             pin_clear_active();
@@ -399,7 +451,24 @@ void ui_event_PrivateSlider_ValueChanged(lv_event_t * e)
     Uart::setPrivate(v);
 }
 
+void ui_event_LockSlider_ValueChanged(lv_event_t * e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) return;
+    if (ui_is_syncing()) return;
 
+    if (g_inlock_active)
+    {
+        lv_slider_set_value(ui_SliderLock, 0, LV_ANIM_OFF);
+        show_lock_message();
+        return;
+    }
+
+    uint8_t v = (uint8_t)lv_slider_get_value(ui_SliderLock);
+
+    ui_panel_update_img_recolor(ui_PanelLock, v);
+
+    Uart::setLock(v);
+}
 // ---------- Main -> Settings ----------
 void ui_event_ButtonSettings_Clicked(lv_event_t * e)
 {
@@ -629,12 +698,14 @@ void ui_event_ButtonPin_Clicked(lv_event_t * e)
 void ui_event_ButtonInfo_Clicked(lv_event_t * e)
 {
     if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
+    app_qr_refresh();
     go_screen(ui_ScreenInfo);
 }
 
 void ui_event_ButtonBackAdvanced_Clicked(lv_event_t * e)
 {
     if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
+    app_qr_refresh();
     go_screen(ui_ScreenSettings);
 }
 
@@ -780,4 +851,78 @@ void ui_event_PinAdvanced_Clicked(lv_event_t * e)
 {
     if (lv_event_get_code(e) == LV_EVENT_CLICKED)
         pin_set_active(ui_TextAreaPinAdvanced);
+}
+
+void ui_event_QR_TextReady(lv_event_t * e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_READY) return;
+
+    lv_obj_t * kb = lv_event_get_target(e);
+    lv_obj_t * ta = lv_keyboard_get_textarea(kb);
+    if (!ta) return;
+
+    const char * txt = lv_textarea_get_text(ta);
+    if (!txt) return;
+
+    if (ta == ui_TextAreaQRPage) {
+    app_qr_set_page(txt);
+    }
+    else if (ta == ui_TextAreaQRSerial) {
+    app_qr_set_serial(txt);
+    }
+
+    // ✅ guarda persistente
+    app_qr_nvs_save();
+
+    // opcional: ocultar teclado
+    lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+}
+
+
+
+void ui_event_ButtonBackInfoSetup_Clicked(lv_event_t * e)
+{
+    if(lv_event_get_code(e) != LV_EVENT_CLICKED) return;
+
+    // Oculta teclado por seguridad
+    if(ui_KeyboardQR) lv_obj_add_flag(ui_KeyboardQR, LV_OBJ_FLAG_HIDDEN);
+
+    // Quita foco/captura del input para evitar "touch capturado"
+    lv_group_t * g = lv_group_get_default();
+    if(g) lv_group_focus_freeze(g, false);
+
+    // Vuelve a tu screen anterior (ajusta al nombre real)
+    // go_screen(ui_ScreenSettings);  // si tienes helper
+    app_qr_refresh();
+    lv_scr_load(ui_ScreenInfo);   // o la que sea
+
+}
+
+
+void ui_event_TextAreaQRPage_Focused(lv_event_t * e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_FOCUSED) return;
+
+    // 🔤 El keyboard ahora escribe en QRPage
+    lv_keyboard_set_textarea(ui_KeyboardQR, ui_TextAreaQRPage);
+
+    // Muestra el teclado
+    lv_obj_clear_flag(ui_KeyboardQR, LV_OBJ_FLAG_HIDDEN);
+
+    // Focus visual (opcional)
+    lv_obj_add_state(ui_TextAreaQRPage, LV_STATE_FOCUSED);
+}
+
+void ui_event_TextAreaQRSerial_Focused(lv_event_t * e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_FOCUSED) return;
+
+    // 🔤 El keyboard ahora escribe en QRSerial
+    lv_keyboard_set_textarea(ui_KeyboardQR, ui_TextAreaQRSerial);
+
+    // Muestra el teclado
+    lv_obj_clear_flag(ui_KeyboardQR, LV_OBJ_FLAG_HIDDEN);
+
+    // Focus visual (opcional)
+    lv_obj_add_state(ui_TextAreaQRSerial, LV_STATE_FOCUSED);
 }

@@ -58,7 +58,7 @@ esp_lcd_panel_handle_t waveshare_esp32_s3_rgb_lcd_init()
             .vsync_back_porch = 13,                 // Vertical back porch
             .vsync_front_porch = 3,                // Vertical front porch
             .flags = {
-                .pclk_active_neg = 1, // Set pixel clock polarity to active low
+                .pclk_active_neg = 0, // Set pixel clock polarity to active low
             },
         },
         .data_width = EXAMPLE_RGB_DATA_WIDTH,                    // Data width for RGB signals
@@ -193,7 +193,7 @@ void wavesahre_rgb_lcd_display(uint8_t *Image)
 
 void waveshare_get_frame_buffer(void **buf1, void **buf2)
 {
-    ESP_ERROR_CHECK(esp_lcd_rgb_panel_get_frame_buffer(panel_handle, 2, buf1, buf2));
+    ESP_ERROR_CHECK(esp_lcd_rgb_panel_get_frame_buffer(panel_handle, EXAMPLE_LCD_RGB_BUFFER_NUMS, buf1, buf2));
 }
 /**
  * @brief Turn on the RGB LCD screen backlight.

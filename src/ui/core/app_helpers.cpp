@@ -9,7 +9,7 @@
 
 
 #define PANEL_IMG_ON   0xFBFBFB  // blanco
-#define PANEL_IMG_OFF  0x4A4A4A  // gris oscuro (ajusta si quieres más oscuro)
+#define PANEL_IMG_OFF  0xD0D0D0  // gris oscuro (ajusta si quieres más oscuro)
 
 
 // Ajusta el timeout aquí
@@ -69,6 +69,13 @@ void app_send_current_levels(void)
         uint8_t v = (uint8_t)lv_slider_get_value(ui_SliderPrivate);
         if (v > 1) v = 1;
         Uart::setPrivate(v);
+    }
+
+    // Lock 0..1
+    if (ui_SliderLock) {
+       uint8_t v = (uint8_t)lv_slider_get_value(ui_SliderLock);
+       if (v > 1) v = 1;
+       Uart::setLock(v);
     }
 }
 

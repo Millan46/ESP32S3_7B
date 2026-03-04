@@ -12,6 +12,6 @@ namespace Uart {
   void setLedTimer(uint8_t sel0_4);
   void setFanTimer(uint8_t sel0_4);
   void setPrivate(uint8_t on01);
-
+  void setLock(uint8_t on01);
   bool read(Packet &out);
 }

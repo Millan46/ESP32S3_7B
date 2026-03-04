@@ -14,7 +14,6 @@ extern "C" {
 extern void ui_ScreenSettings_screen_init(void);
 extern void ui_ScreenSettings_screen_destroy(void);
 extern lv_obj_t * ui_ScreenSettings;
-extern lv_obj_t * ui_ContainerSettings;
 extern lv_obj_t * ui_topBarSettings;
 extern void ui_event_TextAreaPinSettings(lv_event_t * e);
 extern lv_obj_t * ui_TextAreaPinSettings;
@@ -24,7 +23,6 @@ extern void ui_event_ButtonBackHome(lv_event_t * e);
 extern lv_obj_t * ui_ButtonBackHome;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenSettings;
-extern lv_obj_t * uic_ContainerSettings;
 extern lv_obj_t * uic_topBarSettings;
 extern lv_obj_t * uic_TextAreaPinSettings;
 extern lv_obj_t * uic_PanelNumber1;

@@ -12,7 +12,6 @@ lv_obj_t * uic_PanelBackControl;
 lv_obj_t * uic_ContainerControl;
 lv_obj_t * uic_ScreenControl;
 lv_obj_t * ui_ScreenControl = NULL;
-lv_obj_t * ui_ContainerControl = NULL;
 lv_obj_t * ui_PanelBackControl = NULL;
 lv_obj_t * ui_ButtonBackControl = NULL;
 lv_obj_t * ui_Container1 = NULL;
@@ -44,45 +43,44 @@ void ui_event_SwitchIR(lv_event_t * e)
 void ui_ScreenControl_screen_init(void)
 {
     ui_ScreenControl = lv_obj_create(NULL);
+    lv_obj_set_style_bg_img_src(ui_ScreenControl, &img_base_azul, 0);
+    lv_obj_set_style_bg_img_opa(ui_ScreenControl, LV_OPA_COVER, 0);
     lv_obj_clear_flag(ui_ScreenControl, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    
+    ui_topBar6 = ui_topBar_create(ui_ScreenControl);
+    lv_obj_set_x(ui_topBar6, 0);
+    lv_obj_set_y(ui_topBar6, 0);
 
-    ui_ContainerControl = lv_obj_create(ui_ScreenControl);
-    lv_obj_remove_style_all(ui_ContainerControl);
-    lv_obj_set_width(ui_ContainerControl, 1024);
-    lv_obj_set_height(ui_ContainerControl, 600);
-    lv_obj_set_align(ui_ContainerControl, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_ContainerControl, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_ContainerControl, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ContainerControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_comp_get_child(ui_topBar6, UI_COMP_TOPBAR_LABELMENU), "Control");
 
-    ui_PanelBackControl = lv_obj_create(ui_ContainerControl);
-    lv_obj_set_width(ui_PanelBackControl, 50);
-    lv_obj_set_height(ui_PanelBackControl, 50);
+    ui_PanelBackControl = lv_obj_create(ui_ScreenControl);
+    lv_obj_set_width(ui_PanelBackControl, 80);
+    lv_obj_set_height(ui_PanelBackControl, 80);
     lv_obj_set_x(ui_PanelBackControl, 50);
     lv_obj_set_y(ui_PanelBackControl, 50);
     lv_obj_clear_flag(ui_PanelBackControl, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_PanelBackControl, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelBackControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelBackControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_PanelBackControl, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_PanelBackControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_PanelBackControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_ButtonBackControl = lv_btn_create(ui_PanelBackControl);
-    lv_obj_set_width(ui_ButtonBackControl, 100);
-    lv_obj_set_height(ui_ButtonBackControl, 50);
+    lv_obj_set_width(ui_ButtonBackControl, 80);
+    lv_obj_set_height(ui_ButtonBackControl, 80);
     lv_obj_set_align(ui_ButtonBackControl, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_ButtonBackControl, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_ButtonBackControl, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_ButtonBackControl, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ButtonBackControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_src(ui_ButtonBackControl, &ui_img_back_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonBackControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_ButtonBackControl, &img_back_br, LV_PART_MAIN | LV_STATE_DEFAULT);
     ui_object_set_themeable_style_property(ui_ButtonBackControl, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR,
                                            _ui_theme_color_IndicatorOn);
     ui_object_set_themeable_style_property(ui_ButtonBackControl, LV_PART_MAIN | LV_STATE_DEFAULT,
                                            LV_STYLE_BG_IMG_RECOLOR_OPA, _ui_theme_alpha_IndicatorOn);
     lv_obj_set_style_border_color(ui_ButtonBackControl, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_ButtonBackControl, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_ButtonBackControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Container1 = lv_obj_create(ui_ContainerControl);
+    ui_Container1 = lv_obj_create(ui_ScreenControl);
     lv_obj_remove_style_all(ui_Container1);
     lv_obj_set_width(ui_Container1, 250);
     lv_obj_set_height(ui_Container1, 250);
@@ -103,16 +101,11 @@ void ui_ScreenControl_screen_init(void)
     lv_label_set_text(ui_LabelIR, "IR ");
     lv_obj_set_style_text_font(ui_LabelIR, &lv_font_montserrat_44, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_topBar6 = ui_topBar_create(ui_ScreenControl);
-    lv_obj_set_x(ui_topBar6, 0);
-    lv_obj_set_y(ui_topBar6, 20);
 
-    lv_label_set_text(ui_comp_get_child(ui_topBar6, UI_COMP_TOPBAR_LABELMENU), "Control");
 
     lv_obj_add_event_cb(ui_ButtonBackControl, ui_event_ButtonBackControl, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_SwitchIR, ui_event_SwitchIR, LV_EVENT_ALL, NULL);
     uic_ScreenControl = ui_ScreenControl;
-    uic_ContainerControl = ui_ContainerControl;
     uic_PanelBackControl = ui_PanelBackControl;
     uic_ButtonBackControl = ui_ButtonBackControl;
     uic_SwitchIR = ui_SwitchIR;
@@ -127,8 +120,6 @@ void ui_ScreenControl_screen_destroy(void)
     // NULL screen variables
     uic_ScreenControl = NULL;
     ui_ScreenControl = NULL;
-    uic_ContainerControl = NULL;
-    ui_ContainerControl = NULL;
     uic_PanelBackControl = NULL;
     ui_PanelBackControl = NULL;
     uic_ButtonBackControl = NULL;

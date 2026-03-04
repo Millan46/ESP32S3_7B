@@ -16,6 +16,7 @@ void ui_event_ButtonRelax_Clicked(lv_event_t * e);
 void ui_event_FanSlider_ValueChanged(lv_event_t * e);
 void ui_event_LightSlider_ValueChanged(lv_event_t * e);
 void ui_event_PrivateSlider_ValueChanged(lv_event_t * e);
+void ui_event_LockSlider_ValueChanged(lv_event_t * e);
 void ui_event_ButtonSettings_Clicked(lv_event_t * e);
 void ui_event_ButtonClean_Clicked(lv_event_t * e);
 void ui_event_ButtonSaveDate_Clicked(lv_event_t * e);
@@ -68,6 +69,10 @@ void ui_event_ButtonSaveModes_Clicked(lv_event_t * e);
 void ui_event_ButtonBackControl_Clicked(lv_event_t * e);
 void ui_event_IR_Enable(lv_event_t * e);
 void ui_event_ButtonBackInfo_Clicked(lv_event_t * e);
+void ui_event_ButtonBackInfoSetup_Clicked(lv_event_t * e);
+void ui_event_QR_TextReady(lv_event_t * e);
+void ui_event_TextAreaQRPage_Focused(lv_event_t * e);
+void ui_event_TextAreaQRSerial_Focused(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

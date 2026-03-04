@@ -14,7 +14,6 @@ extern "C" {
 extern void ui_ScreenTimer_screen_init(void);
 extern void ui_ScreenTimer_screen_destroy(void);
 extern lv_obj_t * ui_ScreenTimer;
-extern lv_obj_t * ui_ContainerTimer;
 extern lv_obj_t * ui_topBarTimer;
 extern void ui_event_RollerFan(lv_event_t * e);
 extern lv_obj_t * ui_RollerFan;
@@ -31,7 +30,6 @@ extern lv_obj_t * ui_ButtonSaveTimer;
 extern lv_obj_t * ui_Label1SaveTimer;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenTimer;
-extern lv_obj_t * uic_ContainerTimer;
 extern lv_obj_t * uic_topBarTimer;
 extern lv_obj_t * uic_RollerFan;
 extern lv_obj_t * uic_RollerLed;

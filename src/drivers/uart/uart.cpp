@@ -73,7 +73,7 @@ namespace Uart {
   void setFanLevel(uint8_t level0_100) { if (level0_100 > 100) level0_100 = 100; send(CMD_FAN_PWM, level0_100);}
   void setLedTimer(uint8_t sel0_4)   { if (sel0_4 > 4) sel0_4 = 4; send(CMD_LED_TIMER, sel0_4); }
   void setFanTimer(uint8_t sel0_4)   { if (sel0_4 > 4) sel0_4 = 4; send(CMD_FAN_TIMER, sel0_4); }
-  void setPrivate(uint8_t on01)      { if (on01 > 1) on01 = 1; send(CMD_PRIVATE, on01); }
-
+  void setPrivate(uint8_t on01)      { if (on01 > 1) on01 = 1; send(CMD_PRIV_ENABLE, on01); }
+  void setLock(uint8_t on01)         { if (on01 > 1) on01 = 1; send(CMD_LOCK_ENABLE, on01);}
 
 } // namespace Uart

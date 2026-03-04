@@ -159,7 +159,7 @@ warning: in the working copy of 'src/ui/screens/ui_ScreenMain.h', LF will be rep
      ui_object_set_themeable_style_property(ui_ButtonClean, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR_OPA,[m
                                             _ui_theme_alpha_IndicatorOn);[m
  [m
-[31m-    ui_Container2 = lv_obj_create(ui_ContainerMain);[m
+[31m-    ui_Container2 = lv_obj_create(ui_ScreenMain);[m
 [31m-    lv_obj_remove_style_all(ui_Container2);[m
 [31m-    lv_obj_set_width(ui_Container2, 235);[m
 [31m-    lv_obj_set_height(ui_Container2, 75);[m

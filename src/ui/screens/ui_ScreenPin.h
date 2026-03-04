@@ -14,14 +14,13 @@ extern "C" {
 extern void ui_ScreenPin_screen_init(void);
 extern void ui_ScreenPin_screen_destroy(void);
 extern lv_obj_t * ui_ScreenPin;
-extern lv_obj_t * ui_ContainerPin;
 extern lv_obj_t * ui_topBar2;
 extern lv_obj_t * ui_PanelNumber2;
-extern lv_obj_t * ui_ContainerPinUser;
+extern lv_obj_t * ui_ScreenPinUser;
 extern lv_obj_t * ui_LabelPinUser;
 extern void ui_event_TextAreaPinUser(lv_event_t * e);
 extern lv_obj_t * ui_TextAreaPinUser;
-extern lv_obj_t * ui_ContainerPinAdvanced;
+extern lv_obj_t * ui_ScreenPinAdvanced;
 extern lv_obj_t * ui_LabelPinAdvanced;
 extern void ui_event_TextAreaPinAdvanced(lv_event_t * e);
 extern lv_obj_t * ui_TextAreaPinAdvanced;
@@ -30,7 +29,6 @@ extern void ui_event_ButtonBackPin(lv_event_t * e);
 extern lv_obj_t * ui_ButtonBackPin;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenAdvance;
-extern lv_obj_t * uic_ContainerPin;
 extern lv_obj_t * uic_ContainerPinUser;
 extern lv_obj_t * uic_LabelPinUser;
 extern lv_obj_t * uic_TextAreaPinUser;

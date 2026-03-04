@@ -15,10 +15,8 @@ lv_obj_t * uic_PanelTFan;
 lv_obj_t * uic_RollerLed;
 lv_obj_t * uic_RollerFan;
 lv_obj_t * uic_topBarTimer;
-lv_obj_t * uic_ContainerTimer;
 lv_obj_t * uic_ScreenTimer;
 lv_obj_t * ui_ScreenTimer = NULL;
-lv_obj_t * ui_ContainerTimer = NULL;
 lv_obj_t * ui_topBarTimer = NULL;
 lv_obj_t * ui_RollerFan = NULL;
 lv_obj_t * ui_RollerLed = NULL;
@@ -79,60 +77,74 @@ void ui_event_ButtonSaveTimer(lv_event_t * e)
 void ui_ScreenTimer_screen_init(void)
 {
     ui_ScreenTimer = lv_obj_create(NULL);
+    lv_obj_set_style_bg_img_src(ui_ScreenTimer, &img_base_azul, 0);
+    lv_obj_set_style_bg_img_opa(ui_ScreenTimer, LV_OPA_COVER, 0);
     lv_obj_clear_flag(ui_ScreenTimer, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
-    lv_obj_set_style_bg_color(ui_ScreenTimer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ScreenTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_ContainerTimer = lv_obj_create(ui_ScreenTimer);
-    lv_obj_remove_style_all(ui_ContainerTimer);
-    lv_obj_set_width(ui_ContainerTimer, lv_pct(100));
-    lv_obj_set_height(ui_ContainerTimer, lv_pct(100));
-    lv_obj_set_align(ui_ContainerTimer, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_ContainerTimer,
-                      LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
-                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
-                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
-
-    ui_topBarTimer = ui_topBar_create(ui_ContainerTimer);
+    ui_topBarTimer = ui_topBar_create(ui_ScreenTimer);
     lv_obj_set_x(ui_topBarTimer, 0);
-    lv_obj_set_y(ui_topBarTimer, 20);
+    lv_obj_set_y(ui_topBarTimer, 0);
 
     lv_label_set_text(ui_comp_get_child(ui_topBarTimer, UI_COMP_TOPBAR_LABELMENU), "Timer");
 
-    ui_RollerFan = lv_roller_create(ui_ContainerTimer);
+    ui_RollerFan = lv_roller_create(ui_ScreenTimer);
     lv_roller_set_options(ui_RollerFan, "30 seg\n1 min\n3 min\n5 min\n10 min", LV_ROLLER_MODE_NORMAL);
     lv_obj_set_width(ui_RollerFan, 150);
     lv_obj_set_height(ui_RollerFan, 150);
     lv_obj_set_x(ui_RollerFan, -100);
     lv_obj_set_y(ui_RollerFan, 300);
     lv_obj_set_align(ui_RollerFan, LV_ALIGN_TOP_MID);
-    lv_obj_set_style_text_color(ui_RollerFan, lv_color_hex(0xFBFBFB), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_RollerFan, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    /* Fondo del roller tipo glass */
+    lv_obj_set_style_bg_color(ui_RollerFan, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RollerFan, 25, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_RollerFan, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_RollerFan, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_RollerFan, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_RollerFan, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_set_style_text_color(ui_RollerFan, lv_color_hex(0xFBFBFB), LV_PART_SELECTED | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_RollerFan, 255, LV_PART_SELECTED | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_RollerFan, &lv_font_montserrat_24, LV_PART_SELECTED | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_RollerFan, lv_color_hex(0x646464), LV_PART_SELECTED | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_RollerFan, 255, LV_PART_SELECTED | LV_STATE_DEFAULT);
+    /* Texto normal */
+    lv_obj_set_style_text_color(ui_RollerFan, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_RollerFan, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_RollerLed = lv_roller_create(ui_ContainerTimer);
+    /* Texto seleccionado */
+    lv_obj_set_style_text_color(ui_RollerFan, lv_color_hex(0xFFFFFF), LV_PART_SELECTED | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_RollerFan, &lv_font_montserrat_28, LV_PART_SELECTED | LV_STATE_DEFAULT);
+
+    /* Fondo seleccionado moderno */
+    lv_obj_set_style_bg_color(ui_RollerFan, lv_color_hex(0xFFFFFF), LV_PART_SELECTED | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RollerFan, 40, LV_PART_SELECTED | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_RollerFan, 15, LV_PART_SELECTED | LV_STATE_DEFAULT);
+
+    ui_RollerLed = lv_roller_create(ui_ScreenTimer);
     lv_roller_set_options(ui_RollerLed, "30 seg\n1 min\n3 min\n5 min\n10 min", LV_ROLLER_MODE_NORMAL);
     lv_obj_set_width(ui_RollerLed, 150);
     lv_obj_set_height(ui_RollerLed, 150);
     lv_obj_set_x(ui_RollerLed, 100);
     lv_obj_set_y(ui_RollerLed, 300);
     lv_obj_set_align(ui_RollerLed, LV_ALIGN_TOP_MID);
-    lv_obj_set_style_text_color(ui_RollerLed, lv_color_hex(0xFBFBFB), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_RollerLed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    /* Fondo del roller tipo glass */
+    lv_obj_set_style_bg_color(ui_RollerLed, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RollerLed, 25, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_RollerLed, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_RollerLed, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_RollerLed, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_RollerLed, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_set_style_text_color(ui_RollerLed, lv_color_hex(0xFBFBFB), LV_PART_SELECTED | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_RollerLed, 255, LV_PART_SELECTED | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_RollerLed, &lv_font_montserrat_24, LV_PART_SELECTED | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_RollerLed, lv_color_hex(0x646464), LV_PART_SELECTED | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_RollerLed, 255, LV_PART_SELECTED | LV_STATE_DEFAULT);
+    /* Texto normal */
+    lv_obj_set_style_text_color(ui_RollerLed, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_RollerLed, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_PanelTFan = lv_obj_create(ui_ContainerTimer);
+    /* Texto seleccionado */
+    lv_obj_set_style_text_color(ui_RollerLed, lv_color_hex(0xFFFFFF), LV_PART_SELECTED | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_RollerLed, &lv_font_montserrat_28, LV_PART_SELECTED | LV_STATE_DEFAULT);
+
+    /* Fondo seleccionado moderno */
+    lv_obj_set_style_bg_color(ui_RollerLed, lv_color_hex(0xFFFFFF), LV_PART_SELECTED | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RollerLed, 40, LV_PART_SELECTED | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_RollerLed, 15, LV_PART_SELECTED | LV_STATE_DEFAULT);
+
+    ui_PanelTFan = lv_obj_create(ui_ScreenTimer);
     lv_obj_set_width(ui_PanelTFan, 90);
     lv_obj_set_height(ui_PanelTFan, 80);
     lv_obj_set_x(ui_PanelTFan, -100);
@@ -140,14 +152,14 @@ void ui_ScreenTimer_screen_init(void)
     lv_obj_set_align(ui_PanelTFan, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_PanelTFan, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_PanelTFan, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelTFan, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelTFan, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_src(ui_PanelTFan, &ui_img_timer_fan_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_recolor(ui_PanelTFan, lv_color_hex(0xFBFBFB), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_recolor_opa(ui_PanelTFan, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_PanelTFan, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_PanelTFan, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_PanelTFan, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_PanelTLed = lv_obj_create(ui_ContainerTimer);
+    ui_PanelTLed = lv_obj_create(ui_ScreenTimer);
     lv_obj_set_width(ui_PanelTLed, 90);
     lv_obj_set_height(ui_PanelTLed, 80);
     lv_obj_set_x(ui_PanelTLed, 100);
@@ -155,65 +167,52 @@ void ui_ScreenTimer_screen_init(void)
     lv_obj_set_align(ui_PanelTLed, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_PanelTLed, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_PanelTLed, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelTLed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelTLed, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_src(ui_PanelTLed, &ui_img_timer_led_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_recolor(ui_PanelTLed, lv_color_hex(0xFBFBFB), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_img_recolor_opa(ui_PanelTLed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_PanelTLed, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_PanelTLed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_PanelTLed, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_PanelBackTimer = lv_obj_create(ui_ContainerTimer);
-    lv_obj_set_width(ui_PanelBackTimer, 50);
-    lv_obj_set_height(ui_PanelBackTimer, 50);
+    ui_PanelBackTimer = lv_obj_create(ui_ScreenTimer);
+    lv_obj_set_width(ui_PanelBackTimer, 80);
+    lv_obj_set_height(ui_PanelBackTimer, 80);
     lv_obj_set_x(ui_PanelBackTimer, 50);
     lv_obj_set_y(ui_PanelBackTimer, 50);
     lv_obj_clear_flag(ui_PanelBackTimer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_PanelBackTimer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelBackTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_PanelBackTimer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_PanelBackTimer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_PanelBackTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_PanelBackTimer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_ButtonBackTimer = lv_btn_create(ui_PanelBackTimer);
-    lv_obj_set_width(ui_ButtonBackTimer, 100);
-    lv_obj_set_height(ui_ButtonBackTimer, 50);
+    lv_obj_set_width(ui_ButtonBackTimer, 80);
+    lv_obj_set_height(ui_ButtonBackTimer, 80);
     lv_obj_set_align(ui_ButtonBackTimer, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_ButtonBackTimer, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_ButtonBackTimer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_ButtonBackTimer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ButtonBackTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_src(ui_ButtonBackTimer, &ui_img_back_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonBackTimer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_ButtonBackTimer, &img_back_br, LV_PART_MAIN | LV_STATE_DEFAULT);
     ui_object_set_themeable_style_property(ui_ButtonBackTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR,
                                            _ui_theme_color_IndicatorOn);
     ui_object_set_themeable_style_property(ui_ButtonBackTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_IMG_RECOLOR_OPA,
                                            _ui_theme_alpha_IndicatorOn);
     lv_obj_set_style_border_color(ui_ButtonBackTimer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_ButtonBackTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_ButtonBackTimer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_PanelSaveTimer = lv_obj_create(ui_ContainerTimer);
-    lv_obj_set_width(ui_PanelSaveTimer, 100);
-    lv_obj_set_height(ui_PanelSaveTimer, 60);
-    lv_obj_set_x(ui_PanelSaveTimer, -100);
-    lv_obj_set_y(ui_PanelSaveTimer, -50);
-    lv_obj_set_align(ui_PanelSaveTimer, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_clear_flag(ui_PanelSaveTimer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_PanelSaveTimer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_PanelSaveTimer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_object_set_themeable_style_property(ui_PanelSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BORDER_COLOR,
-                                           _ui_theme_color_Dark);
-    ui_object_set_themeable_style_property(ui_PanelSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BORDER_OPA,
-                                           _ui_theme_alpha_Dark);
-
-    ui_ButtonSaveTimer = lv_btn_create(ui_PanelSaveTimer);
-    lv_obj_set_width(ui_ButtonSaveTimer, 100);
-    lv_obj_set_height(ui_ButtonSaveTimer, 50);
-    lv_obj_set_align(ui_ButtonSaveTimer, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_ButtonSaveTimer, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    ui_ButtonSaveTimer = lv_btn_create(ui_ScreenTimer);
+    lv_obj_set_width(ui_ButtonSaveTimer, 141);
+    lv_obj_set_height(ui_ButtonSaveTimer, 64);
+    lv_obj_set_x(ui_ButtonSaveTimer, -100);
+    lv_obj_set_y(ui_ButtonSaveTimer, -50);
+    lv_obj_set_align(ui_ButtonSaveTimer, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_clear_flag(ui_ButtonSaveTimer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    ui_object_set_themeable_style_property(ui_ButtonSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_DEFAULT);
-    ui_object_set_themeable_style_property(ui_ButtonSaveTimer, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_DEFAULT);
-    lv_obj_set_style_text_font(ui_ButtonSaveTimer, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    /* === Estilo igual al botón original === */
+    lv_obj_set_style_bg_color(ui_ButtonSaveTimer, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui_ButtonSaveTimer, LV_GRAD_DIR_NONE, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ButtonSaveTimer, 100, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label1SaveTimer = lv_label_create(ui_ButtonSaveTimer);
     lv_obj_set_width(ui_Label1SaveTimer, LV_SIZE_CONTENT);   /// 1
@@ -229,7 +228,6 @@ void ui_ScreenTimer_screen_init(void)
     lv_obj_add_event_cb(ui_ButtonBackTimer, ui_event_ButtonBackTimer, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonSaveTimer, ui_event_ButtonSaveTimer, LV_EVENT_ALL, NULL);
     uic_ScreenTimer = ui_ScreenTimer;
-    uic_ContainerTimer = ui_ContainerTimer;
     uic_topBarTimer = ui_topBarTimer;
     uic_RollerFan = ui_RollerFan;
     uic_RollerLed = ui_RollerLed;
@@ -250,8 +248,6 @@ void ui_ScreenTimer_screen_destroy(void)
     // NULL screen variables
     uic_ScreenTimer = NULL;
     ui_ScreenTimer = NULL;
-    uic_ContainerTimer = NULL;
-    ui_ContainerTimer = NULL;
     uic_topBarTimer = NULL;
     ui_topBarTimer = NULL;
     uic_RollerFan = NULL;

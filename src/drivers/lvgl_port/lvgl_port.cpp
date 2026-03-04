@@ -320,10 +320,10 @@ void flush_callback(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color
     const int offsety2 = area->y2; // End Y coordinate of the area to flush
 
 #if EXAMPLE_LVGL_PORT_ROTATION_DEGREE != 0
-    void *next_fb = get_next_frame_buffer(panel_handle); // Get the next frame buffer
+uint16_t *next_fb = (uint16_t *)get_next_frame_buffer(panel_handle);
 
     /* Rotate and copy dirty area from the current LVGL's buffer to the next RGB frame buffer */
-    rotate_copy_pixel((uint16_t *)color_map, next_fb, offsetx1, offsety1, offsetx2, offsety2, LV_HOR_RES, LV_VER_RES, EXAMPLE_LVGL_PORT_ROTATION_DEGREE);
+    rotate_copy_pixel((const uint16_t *)color_map, next_fb, offsetx1, offsety1, offsetx2, offsety2, LV_HOR_RES, LV_VER_RES, EXAMPLE_LVGL_PORT_ROTATION_DEGREE);
 
     /* Switch the current RGB frame buffer to `next_fb` */
     esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, next_fb);

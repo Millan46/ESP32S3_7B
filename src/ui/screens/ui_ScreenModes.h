@@ -14,7 +14,6 @@ extern "C" {
 extern void ui_ScreenModes_screen_init(void);
 extern void ui_ScreenModes_screen_destroy(void);
 extern lv_obj_t * ui_ScreenModes;
-extern lv_obj_t * ui_ContainerModes;
 extern lv_obj_t * ui_topBar4;
 extern void ui_event_RollerModes(lv_event_t * e);
 extern lv_obj_t * ui_RollerModes;
@@ -24,8 +23,8 @@ extern void ui_event_SliderModesLed_Slider1(lv_event_t * e);
 extern lv_obj_t * ui_SliderModesLed;
 extern void ui_event_SliderModesPrivate(lv_event_t * e);
 extern lv_obj_t * ui_SliderModesPrivate;
-extern lv_obj_t * ui_LabelOn2;
-extern lv_obj_t * ui_LabelOff2;
+extern lv_obj_t * ui_LabelModeOn;
+extern lv_obj_t * ui_LabelModeOff;
 extern lv_obj_t * ui_PanelBackModes;
 extern void ui_event_ButtonBackModes(lv_event_t * e);
 extern lv_obj_t * ui_ButtonBackModes;
@@ -38,7 +37,6 @@ extern lv_obj_t * ui_ButtonSaveModes;
 extern lv_obj_t * ui_Label12;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenModes;
-extern lv_obj_t * uic_ContainerModes;
 extern lv_obj_t * uic_RollerModes;
 extern lv_obj_t * uic_SliderModesFan;
 extern lv_obj_t * uic_SliderModesLed;

@@ -14,7 +14,6 @@ extern "C" {
 extern void ui_ScreenAdvanced_screen_init(void);
 extern void ui_ScreenAdvanced_screen_destroy(void);
 extern lv_obj_t * ui_ScreenAdvanced;
-extern lv_obj_t * ui_ContainerAdvanced;
 extern lv_obj_t * ui_PanelPin;
 extern lv_obj_t * ui_LabelPin;
 extern void ui_event_ButtonPin(lv_event_t * e);
@@ -33,7 +32,6 @@ extern void ui_event_ButtonBackAdvanced(lv_event_t * e);
 extern lv_obj_t * ui_ButtonBackAdvanced;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenAdvanced;
-extern lv_obj_t * uic_ContainerAdvanced;
 extern lv_obj_t * uic_PanelPin;
 extern lv_obj_t * uic_LabelPin;
 extern lv_obj_t * uic_ButtonPin;

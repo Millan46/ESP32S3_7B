@@ -14,7 +14,6 @@ extern "C" {
 extern void ui_ScreenDate_screen_init(void);
 extern void ui_ScreenDate_screen_destroy(void);
 extern lv_obj_t * ui_ScreenDate;
-extern lv_obj_t * ui_ContainerLight;
 extern lv_obj_t * ui_topBarLight;
 extern lv_obj_t * ui_PanelSaveDate;
 extern void ui_event_ButtonSaveDate(lv_event_t * e);
@@ -53,7 +52,6 @@ extern lv_obj_t * ui_Panel3;
 extern lv_obj_t * ui_LabelPreviewDateTime;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ScreenDate;
-extern lv_obj_t * uic_ContainerLight;
 extern lv_obj_t * uic_topBarLight;
 extern lv_obj_t * uic_PanelSaveDate;
 extern lv_obj_t * uic_ButtonSaveDate;
